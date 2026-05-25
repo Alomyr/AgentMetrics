@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from model.models import get_db
 from model.AdminUser import AdminDB
@@ -15,7 +16,11 @@ def listar_admins(db: Session = Depends(get_db)):
 
 @AdminUser_routers.post("/add_admin")
 def add_new_admin(admin_data: AdminCreate, db: Session = Depends(get_db)):
-    # 1. Crie o Admin
+    # Verifica se o email já existe antes de criar o admin
+    existing_admin = db.query(AdminDB).filter(AdminDB.email == admin_data.email).first()
+    if existing_admin:
+        raise HTTPException(status_code=400, detail="O email já está cadastrado.")
+
     novo_admin = AdminDB(
         name=admin_data.name,
         numero=admin_data.numero,
@@ -23,12 +28,12 @@ def add_new_admin(admin_data: AdminCreate, db: Session = Depends(get_db)):
         senha=admin_data.senha,
     )
 
-    # Adicione ao banco
     db.add(novo_admin)
+    try:
+        db.commit()
+        db.refresh(novo_admin)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="O email já está cadastrado.")
 
-    # ADICIONE ESTA LINHA:
-    # Isso força o SQLAlchemy a disparar o SQL agora e você verá o erro no terminal
-    db.flush()
-
-    db.commit()
-    return {"message": "Sucesso"}
+    return {"message": "Sucesso", "admin_id": novo_admin.id}
