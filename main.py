@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from models import engine, Base
+from model.models import engine, Base
 from routers.ClientsUser_router import Cliente_routers
 from routers.AdminUser_router import AdminUser_routers
 

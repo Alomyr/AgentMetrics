@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from sqlalchemy.orm import relationship
-import models
+import model.models as models
 
 
 class AdminDB(models.PessoaDB):
