@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from model.models import get_db
 from model.AdminUser import AdminDB
-from schemas import AdminCreate
+from model.schemas import AdminCreate
 
 AdminUser_routers = APIRouter(prefix="/admin", tags=["admin"])
 
