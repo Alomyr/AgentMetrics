@@ -1,18 +1,11 @@
-from fastapi import FastAPI, Request
-from pydantic import BaseModel
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Depends
+from sqlalchemy.orm import Session
+from database import get_db
 
 app = FastAPI()
 
 
-from oder_router import oder_routers
-from auth_router import auth_routers
-
-app.include_router(oder_routers)
-app.include_router(auth_routers)
-
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
- 
+@app.get("/clientes")
+def listar_clientes(db: Session = Depends(get_db)):
+    # Aqui você usaria o db para fazer consultas
+    return {"mensagem": "Conexão com banco estabelecida!"}
