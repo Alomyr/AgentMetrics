@@ -21,4 +21,4 @@ class LeadDB(models.IdentityDB):
     __mapper_args__ = {"polymorphic_identity": "lead"}
 
 
-# NOTE: relação muitos-para-muitos entre User e Lead (user_leads)
+# NOTE: falta fazer o sistema para criar os registros de conversas dos lead com varios users
