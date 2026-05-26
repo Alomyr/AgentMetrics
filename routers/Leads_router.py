@@ -4,6 +4,9 @@ from model.schemas import LeadsCreate
 from model.Leads import LeadDB
 from model.models import IdentityDB
 from model.database import get_db
+import dependencies
+
+# from routers.dependencies import check_if_exists
 
 Cliente_routers = APIRouter(prefix="/leads", tags=["Leads"])
 
@@ -16,6 +19,7 @@ def listar_clientes(db: Session = Depends(get_db)):
 
 @Cliente_routers.post("/new_lead")
 def new_lead(data_lead: LeadsCreate, db: Session = Depends(get_db)):
+    # TODO: Subistituir pela dependecia da função is_check esses metodos
 
     existing_lead_numero = (
         db.query(LeadDB).filter(LeadDB.numero == data_lead.numero).first()
