@@ -8,6 +8,7 @@ from model.schemas import Creat_new_user
 user_routers = APIRouter(prefix="/user", tags=["User"])
 
 
+# tem q permitir a promoção de lead para usuario falta add aqui
 @user_routers.get("/")
 def listar_admins(db: Session = Depends(get_db)):
     # Aqui sua lógica de consulta ao banco
@@ -17,9 +18,17 @@ def listar_admins(db: Session = Depends(get_db)):
 @user_routers.post("/cadastro")
 def add_new_user(user_data: Creat_new_user, db: Session = Depends(get_db)):
     # Verifica se o email já existe antes de criar o admin
-    existing_user = db.query(UserDB).filter(UserDB.email == user_data.email).first()
-    if existing_user:
+    existing_user_email = (
+        db.query(UserDB).filter(UserDB.email == user_data.email).first()
+    )
+    if existing_user_email:
         raise HTTPException(status_code=400, detail="O email já está cadastrado.")
+
+    existing_user_numero = (
+        db.query(UserDB).filter(UserDB.numero == user_data.numero).first()
+    )
+    if existing_user_numero:
+        raise HTTPException(status_code=400, detail="O numero já está cadastrado.")
 
     novo_user = UserDB(
         name=user_data.name,

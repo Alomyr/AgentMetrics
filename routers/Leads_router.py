@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from model.schemas import LeadsCreate
 from model.Leads import LeadDB
+from model.models import IdentityDB
 from model.models import get_db
 
 Cliente_routers = APIRouter(prefix="/leads", tags=["Leads"])
@@ -14,18 +15,23 @@ def listar_clientes(db: Session = Depends(get_db)):
 
 
 @Cliente_routers.post("/new_lead")
-def new_lead(data: LeadsCreate, db: Session = Depends(get_db)):
-    # O SQLAlchemy, através do polimorfismo, insere na tabela 'usuarios' e 'clientes'
-    # simultaneamente quando você cria o objeto com o tipo correto.
+def new_lead(data_lead: LeadsCreate, db: Session = Depends(get_db)):
+
+    existing_lead_numero = (
+        db.query(LeadDB).filter(LeadDB.numero == data_lead.numero).first()
+    )
+    if existing_lead_numero:
+        raise HTTPException(status_code=400, detail="O numero já está cadastrado.")
+
     new_lead = LeadDB(
-        name=data.name,
-        numero=data.numero,
-        user_id=data.user_id,  # ID do admin que vem do n8n ou manual
-        categoria=data.categoria,
-        status=data.status,
-        resumo_conversa=data.resumo_conversa,
-        intencao=data.intencao,
-        data_hora_servico=data.data_hora_servico,
+        name=data_lead.name,
+        numero=data_lead.numero,
+        user_id=data_lead.user_id,  # ID do admin que vem do n8n ou manual
+        categoria=data_lead.categoria,
+        status=data_lead.status,
+        resumo_conversa=data_lead.resumo_conversa,
+        intencao=data_lead.intencao,
+        data_hora_servico=data_lead.data_hora_servico,
         type="lead",  # Define a identidade polimórfica
     )
 

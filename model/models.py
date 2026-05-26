@@ -26,7 +26,7 @@ class IdentityDB(Base):
 
     id = Column("ID", Integer, primary_key=True, index=True)
     name = Column("Nome", String, nullable=False)
-    numero = Column("Numero", String, nullable=False)
+    numero = Column("Numero", String, unique=True, nullable=False)
     # A coluna 'type' define se é um 'admin' ou 'cliente'
     type = Column("Tipo", String, nullable=False)
 
