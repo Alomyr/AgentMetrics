@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from sqlalchemy.orm import relationship
 import model.models as models
-from model.Leads import LeadDB
 
 
 class UserDB(models.IdentityDB):
@@ -11,9 +10,8 @@ class UserDB(models.IdentityDB):
     senha = Column("Senha", String, nullable=False)
     clientes = relationship(
         "LeadDB",
-        back_populates="user",
-        foreign_keys="[LeadDB.user_id]",
-        primaryjoin="UserDB.id == LeadDB.user_id",
+        secondary=models.user_lead_association,
+        back_populates="users",
     )
 
     __mapper_args__ = {"polymorphic_identity": "user"}

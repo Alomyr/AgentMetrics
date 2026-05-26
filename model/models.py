@@ -1,5 +1,22 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey, column
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Date,
+    ForeignKey,
+    column,
+    Table,
+    UniqueConstraint,
+)
 from .database import Base
+
+user_lead_association = Table(
+    "user_leads",
+    Base.metadata,
+    Column("user_id", Integer, ForeignKey("Users.ID"), primary_key=True),
+    Column("lead_id", Integer, ForeignKey("Leads.ID"), primary_key=True),
+    UniqueConstraint("user_id", "lead_id", name="uix_user_lead"),
+)
 
 
 class IdentityDB(Base):

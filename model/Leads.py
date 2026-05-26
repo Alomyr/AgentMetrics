@@ -7,11 +7,10 @@ from model.enum import StatusEnum
 class LeadDB(models.IdentityDB):
     __tablename__ = "Leads"
     id = Column("ID", Integer, ForeignKey("Identity.ID"), primary_key=True)
-    user_id = Column("user_id", Integer, ForeignKey("Users.ID"))
-    user = relationship(
+    users = relationship(
         "UserDB",
+        secondary=models.user_lead_association,
         back_populates="clientes",
-        foreign_keys=[user_id],
     )
     categoria = Column("Categoria", String)
     status = Column("Status", String)
@@ -22,4 +21,4 @@ class LeadDB(models.IdentityDB):
     __mapper_args__ = {"polymorphic_identity": "lead"}
 
 
-# NOTE: colocar a relação muitos para muitos mas so permitir um unico numero cadastrado no sistema
+# NOTE: relação muitos-para-muitos entre User e Lead (user_leads)

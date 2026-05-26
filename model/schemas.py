@@ -1,6 +1,6 @@
 from pydantic import BaseModel, field_validator
 from datetime import date
-from typing import Optional
+from typing import Optional, List
 from model.enum import StatusEnum
 
 
@@ -14,7 +14,7 @@ class Creat_new_user(BaseModel):
 class LeadsCreate(BaseModel):
     name: str
     numero: str
-    user_id: int  # Incluído aqui para vir no JSON
+    user_ids: Optional[List[int]] = None  # IDs dos usuários associados ao lead
     categoria: Optional[str] = None
     status: Optional[StatusEnum] = StatusEnum.ABERTO
     resumo_conversa: Optional[str] = None

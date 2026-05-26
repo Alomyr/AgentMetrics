@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, dependencies
 from sqlalchemy.orm import Session
 from model.schemas import LeadsCreate
 from model.Leads import LeadDB
+from model.User import UserDB
 from model.models import IdentityDB
 from model.database import get_db
 import routers.dependencies
@@ -28,17 +29,24 @@ def new_lead(data_lead: LeadsCreate, db: Session = Depends(get_db)):
             status_code=400, detail="O numero já está cadastrado como usuario."
         )
 
-    # criar o metodo de pode auterar o nivel de lead para user
+    users = []
+    if data_lead.user_ids:
+        users = db.query(UserDB).filter(UserDB.id.in_(data_lead.user_ids)).all()
+        if len(users) != len(data_lead.user_ids):
+            raise HTTPException(
+                status_code=404,
+                detail="Um ou mais usuários associados ao lead não foram encontrados.",
+            )
 
     new_lead = LeadDB(
         name=data_lead.name,
         numero=data_lead.numero,
-        user_id=data_lead.user_id,  # ID do admin que vem do n8n ou manual
         categoria=data_lead.categoria,
         status=data_lead.status,
         resumo_conversa=data_lead.resumo_conversa,
         intencao=data_lead.intencao,
         data_hora_servico=data_lead.data_hora_servico,
+        users=users,
         type="lead",  # Define a identidade polimórfica
     )
 
