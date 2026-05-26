@@ -4,17 +4,17 @@ from typing import Optional
 from model.enum import StatusEnum
 
 
-class AdminCreate(BaseModel):
+class Creat_new_user(BaseModel):
     name: str
     numero: str
     email: str
     senha: str
 
 
-class ClienteCreate(BaseModel):
+class LeadsCreate(BaseModel):
     name: str
     numero: str
-    admin_id: int  # Incluído aqui para vir no JSON
+    user_id: int  # Incluído aqui para vir no JSON
     categoria: Optional[str] = None
     status: Optional[StatusEnum] = StatusEnum.ABERTO
     resumo_conversa: Optional[str] = None

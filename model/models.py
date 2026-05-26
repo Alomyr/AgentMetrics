@@ -21,8 +21,8 @@ def get_db():
         db.close()
 
 
-class PessoaDB(Base):
-    __tablename__ = "usuarios"
+class IdentityDB(Base):
+    __tablename__ = "Identity"
 
     id = Column("ID", Integer, primary_key=True, index=True)
     name = Column("Nome", String, nullable=False)
@@ -31,6 +31,6 @@ class PessoaDB(Base):
     type = Column("Tipo", String, nullable=False)
 
     __mapper_args__ = {
-        "polymorphic_identity": "usuario",
+        "polymorphic_identity": "identity",
         "polymorphic_on": type,
     }

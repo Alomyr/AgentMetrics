@@ -3,19 +3,17 @@ from sqlalchemy.orm import relationship
 import model.models as models
 
 
-class AdminDB(models.PessoaDB):
-    __tablename__ = "admins"
-    id = Column("ID", Integer, ForeignKey("usuarios.ID"), primary_key=True)
+class UserDB(models.IdentityDB):
+    __tablename__ = "Users"
+    id = Column("ID", Integer, ForeignKey("Identity.ID"), primary_key=True)
     email = Column("Email", String, unique=True, nullable=False)
     senha = Column("Senha", String, nullable=False)
     clientes = relationship(
-        "ClienteDB",
-        back_populates="admin",
-        foreign_keys="[ClienteDB.admin_id]",
-        primaryjoin="AdminDB.id == ClienteDB.admin_id",
+        "LeadDB",
+        back_populates="user",
     )
 
-    __mapper_args__ = {"polymorphic_identity": "admin"}
+    __mapper_args__ = {"polymorphic_identity": "user"}
 
     def __init__(self, email, senha, **kwargs):
         super().__init__(**kwargs)
@@ -23,4 +21,4 @@ class AdminDB(models.PessoaDB):
         self.email = email
         self.senha = senha  # colocar logica de criptografia
 
-        self.type = "admin"
+        self.type = "user"
