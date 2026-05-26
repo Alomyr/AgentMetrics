@@ -22,7 +22,13 @@ def new_lead(data_lead: LeadsCreate, db: Session = Depends(get_db)):
     )
     if existing_lead_numero:
         raise HTTPException(status_code=400, detail="O numero já está cadastrado.")
-
+    existing_numero =(
+        db.query(IdentityDB).filter(IdentityDB.numero == data_lead.numero).first()
+    )
+    if existing_numero:
+        raise HTTPException(status_code=400, detail="O numero já está cadastrado como usuario.") 
+    # criar o metodo de pode auterar o nivel de lead para user
+    
     new_lead = LeadDB(
         name=data_lead.name,
         numero=data_lead.numero,

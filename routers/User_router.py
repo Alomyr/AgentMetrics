@@ -46,3 +46,6 @@ def add_new_user(user_data: Creat_new_user, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="O email já está cadastrado.")
 
     return {"message": "Sucesso", "user_id": novo_user.id}
+
+
+## TODO: criar mentodos get e set de edição remoção

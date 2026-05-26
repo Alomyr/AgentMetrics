@@ -34,3 +34,12 @@ class IdentityDB(Base):
         "polymorphic_identity": "identity",
         "polymorphic_on": type,
     }
+
+
+class Admin(Base):
+    __tablename__ = "ADMINISTRADORES"
+
+    id = Column("ID", Integer, primary_key=True, index=True)
+    name = Column("Nome", String, nullable=False)
+    login= Column("Root", String, nullable=False)
+    
