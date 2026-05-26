@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, column
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -41,5 +41,5 @@ class Admin(Base):
 
     id = Column("ID", Integer, primary_key=True, index=True)
     name = Column("Nome", String, nullable=False)
-    login= Column("Root", String, nullable=False)
-    
+    login = Column("Root", String, nullable=False)
+    senha = Column("Senha", String, nullable=False)
