@@ -20,3 +20,6 @@ class LeadDB(models.IdentityDB):
     data_hora_servico = Column("DataHoraServico", Date)
 
     __mapper_args__ = {"polymorphic_identity": "lead"}
+
+
+# NOTE: colocar a relação muitos para muitos mas so permitir um unico numero cadastrado no sistema

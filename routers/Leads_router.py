@@ -1,14 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, dependencies
 from sqlalchemy.orm import Session
 from model.schemas import LeadsCreate
 from model.Leads import LeadDB
 from model.models import IdentityDB
 from model.database import get_db
-import dependencies
+import routers.dependencies
 
 # from routers.dependencies import check_if_exists
 
 Cliente_routers = APIRouter(prefix="/leads", tags=["Leads"])
+
+dependencies = routers.dependencies
 
 
 @Cliente_routers.get("/")
@@ -19,20 +21,13 @@ def listar_clientes(db: Session = Depends(get_db)):
 
 @Cliente_routers.post("/new_lead")
 def new_lead(data_lead: LeadsCreate, db: Session = Depends(get_db)):
-    # TODO: Subistituir pela dependecia da função is_check esses metodos
-
-    existing_lead_numero = (
-        db.query(LeadDB).filter(LeadDB.numero == data_lead.numero).first()
-    )
-    if existing_lead_numero:
+    if dependencies.check_if_exists(db, LeadDB, "numero", data_lead):
         raise HTTPException(status_code=400, detail="O numero já está cadastrado.")
-    existing_numero = (
-        db.query(IdentityDB).filter(IdentityDB.numero == data_lead.numero).first()
-    )
-    if existing_numero:
+    if dependencies.check_if_exists(db, IdentityDB, "numero", data_lead):
         raise HTTPException(
             status_code=400, detail="O numero já está cadastrado como usuario."
         )
+
     # criar o metodo de pode auterar o nivel de lead para user
 
     new_lead = LeadDB(
