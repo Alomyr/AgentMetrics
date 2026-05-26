@@ -4,4 +4,6 @@
 - [ ] criar metodos de metricas
 - [ ] criar as rotas de clientes
 - [ ] criar atulizaador de metricas
-- [ ] adicionar a variavel satisfação
+- [X] adicionar a variavel satisfação
+- [ ] adiconar metodo para ignorar numero igual mas para types diferentes de usuarios
+- [ ] revisar e refatorar filtros

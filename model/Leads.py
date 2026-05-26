@@ -17,6 +17,7 @@ class LeadDB(models.IdentityDB):
     resumo_conversa = Column(String)
     intencao = Column("Intencao", String)
     data_hora_servico = Column("DataHoraServico", Date)
+    stisfacao = Column("Avaliação da conversa", Integer)
 
     __mapper_args__ = {"polymorphic_identity": "lead"}
 

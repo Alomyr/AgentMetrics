@@ -20,3 +20,4 @@ class LeadsCreate(BaseModel):
     resumo_conversa: Optional[str] = None
     intencao: Optional[str] = None
     data_hora_servico: Optional[date] = None
+    stisfacao: int
