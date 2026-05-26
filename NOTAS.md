@@ -1,0 +1,7 @@
+- [ ] criar metodo para atulizar registros de muitos para muitos
+- [ ] criar metodos de edição
+- [ ] criar metodos de listagem
+- [ ] criar metodos de metricas
+- [ ] criar as rotas de clientes
+- [ ] criar atulizaador de metricas
+- [ ] adicionar a variavel satisfação
