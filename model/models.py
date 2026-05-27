@@ -48,5 +48,5 @@ class Admin(Base):
 
     id = Column("ID", Integer, primary_key=True, index=True)
     name = Column("Nome", String, nullable=False)
-    login = Column("Root", String, nullable=False, unique=True)
+    login = Column("Login", String, nullable=False, unique=True)
     senha = Column("Senha", String, nullable=False)

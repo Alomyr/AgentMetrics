@@ -24,3 +24,13 @@ class user_lead_association:
     intencao: Optional[str] = None
     data_hora_servico: Optional[date] = None
     stisfacao: int
+
+
+class login_root(BaseModel):
+    login: str
+    senha: str
+
+
+class login_user(BaseModel):
+    email: str
+    senha: str
