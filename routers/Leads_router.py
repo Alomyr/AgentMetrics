@@ -41,11 +41,11 @@ def new_lead(data_lead: LeadsCreate, db: Session = Depends(get_db)):
     new_lead = LeadDB(
         name=data_lead.name,
         numero=data_lead.numero,
-        categoria=data_lead.categoria,
-        status=data_lead.status,
-        resumo_conversa=data_lead.resumo_conversa,
-        intencao=data_lead.intencao,
-        data_hora_servico=data_lead.data_hora_servico,
+        # categoria=data_lead.categoria,
+        # status=data_lead.status,
+        # resumo_conversa=data_lead.resumo_conversa,
+        # intencao=data_lead.intencao,
+        # data_hora_servico=data_lead.data_hora_servico,
         users=users,
         type="lead",  # Define a identidade polimórfica
     )

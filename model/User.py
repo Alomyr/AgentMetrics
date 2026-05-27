@@ -10,8 +10,15 @@ class UserDB(models.IdentityDB):
     senha = Column("Senha", String, nullable=False)
     clientes = relationship(
         "LeadDB",
-        secondary=models.user_lead_association,
+        secondary=models.UserLeadAssociation.__table__,
         back_populates="users",
+    )
+
+    # association objects (to store extra metadata about the relation)
+    associations = relationship(
+        "UserLeadAssociation",
+        back_populates="user",
+        cascade="all, delete-orphan",
     )
 
     __mapper_args__ = {"polymorphic_identity": "user"}

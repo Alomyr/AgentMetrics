@@ -9,16 +9,15 @@ class LeadDB(models.IdentityDB):
     id = Column("ID", Integer, ForeignKey("Identity.ID"), primary_key=True)
     users = relationship(
         "UserDB",
-        secondary=models.user_lead_association,
+        secondary=models.UserLeadAssociation.__table__,
         back_populates="clientes",
     )
-    categoria = Column("Categoria", String)
-    status = Column("Status", String)
-    resumo_conversa = Column(String)
-    intencao = Column("Intencao", String)
-    data_hora_servico = Column("DataHoraServico", Date)
-    stisfacao = Column("Avaliação da conversa", Integer)
-
+    # association objects (to store extra metadata about the relation)
+    associations = relationship(
+        "UserLeadAssociation",
+        back_populates="lead",
+        cascade="all, delete-orphan",
+    )
     __mapper_args__ = {"polymorphic_identity": "lead"}
 
 

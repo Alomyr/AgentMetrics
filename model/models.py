@@ -8,15 +8,25 @@ from sqlalchemy import (
     Table,
     UniqueConstraint,
 )
+from sqlalchemy.orm import relationship
 from .database import Base
 
-user_lead_association = Table(
-    "user_leads",
-    Base.metadata,
-    Column("user_id", Integer, ForeignKey("Users.ID"), primary_key=True),
-    Column("lead_id", Integer, ForeignKey("Leads.ID"), primary_key=True),
-    UniqueConstraint("user_id", "lead_id", name="uix_user_lead"),
-)
+
+class UserLeadAssociation(Base):
+    __tablename__ = "user_lead_association"
+
+    user_id = Column("user_id", Integer, ForeignKey("Users.ID"), primary_key=True)
+    lead_id = Column("lead_id", Integer, ForeignKey("Leads.ID"), primary_key=True)
+    data_hora_servico = Column("data_hora_servico", Date)
+    status = Column("status", String)
+    categoria = Column("categoria", String)
+    intencao = Column("intencao", String)
+    satisfacao = Column("satisfacao", Integer)
+    resumo_conversa = Column("resumo_conversa", String)
+
+    # relationships to access parent objects from the association
+    user = relationship("UserDB", back_populates="associations")
+    lead = relationship("LeadDB", back_populates="associations")
 
 
 class IdentityDB(Base):

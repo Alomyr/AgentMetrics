@@ -15,6 +15,9 @@ class LeadsCreate(BaseModel):
     name: str
     numero: str
     user_ids: Optional[List[int]] = None  # IDs dos usuários associados ao lead
+
+
+class user_lead_association:
     categoria: Optional[str] = None
     status: Optional[StatusEnum] = StatusEnum.ABERTO
     resumo_conversa: Optional[str] = None
