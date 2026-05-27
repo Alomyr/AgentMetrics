@@ -4,7 +4,6 @@ from sqlalchemy import (
     String,
     Date,
     ForeignKey,
-    column,
     Table,
     UniqueConstraint,
 )
