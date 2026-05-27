@@ -8,3 +8,12 @@
 - [ ] revisar e refatorar filtros
 - [X] adicionar a variavel satisfação
 - [X] estrutura muitos para muitos
+- [ ] 
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+- [ ]
