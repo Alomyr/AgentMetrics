@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from model.database import get_db
+from model.security import get_password_hash
 from model.User import UserDB
 from model.schemas import Creat_new_user
 
@@ -29,12 +30,11 @@ def add_new_user(user_data: Creat_new_user, db: Session = Depends(get_db)):
     )
     if existing_user_numero:
         raise HTTPException(status_code=400, detail="O numero já está cadastrado.")
-
     novo_user = UserDB(
         name=user_data.name,
         numero=user_data.numero,
         email=user_data.email,
-        senha=user_data.senha,
+        senha=get_password_hash(user_data.senha),
     )
 
     db.add(novo_user)
