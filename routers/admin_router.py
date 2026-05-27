@@ -24,3 +24,5 @@ def criar_root(name: str, login: str, senha_plana: str, db: Session = Depends(ge
     db.refresh(novo_admin)
 
     return {"message": "Admin criado com sucesso!", "login": login}
+
+# excluir user => um ano,  cadastrar user, atualizar, pagamento
