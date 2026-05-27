@@ -1,6 +1,10 @@
 # core/security.py
 from passlib.context import CryptContext
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
+SECURITY_KEY = os.getenv("SECURITY_KEY")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
