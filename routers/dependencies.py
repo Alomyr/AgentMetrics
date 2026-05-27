@@ -9,3 +9,6 @@ def check_if_exists(db: Session, model, filter_name: str, data):
     value = getattr(data, filter_name)
     is_exists = db.query(model).filter(column == value).first() is not None
     return is_exists
+
+
+# colocar funções de reutilizadas aqui
