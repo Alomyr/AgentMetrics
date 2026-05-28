@@ -34,3 +34,9 @@ class login_root(BaseModel):
 class login_user(BaseModel):
     email: str
     senha: str
+
+
+class lead_is_exist_number(BaseModel):
+    name: str
+    numero: str
+    user_ids: Optional[List[int]] = None
