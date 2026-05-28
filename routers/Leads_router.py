@@ -62,7 +62,7 @@ def new_lead(data_lead: LeadsCreate, db: Session = Depends(get_db)):
 def chat_lead(
     lead_is_exist_number: lead_is_exist_number, db: Session = Depends(get_db)
 ):
-
+    # lead_is_exist_number => user_id passar a ser number id
     if not lead_is_exist_number.user_ids:
         raise HTTPException(status_code=400, detail="É necessário informar user_ids.")
 
@@ -72,7 +72,7 @@ def chat_lead(
         raise HTTPException(status_code=404, detail="Lead não encontrado.")
 
     users = db.query(UserDB).filter(UserDB.id.in_(lead_is_exist_number.user_ids)).all()
-    
+
     if len(users) != len(lead_is_exist_number.user_ids):
         raise HTTPException(
             status_code=404, detail="Um ou mais usuários não foram encontrados."
@@ -92,7 +92,5 @@ def chat_lead(
     except Exception as e:
         db.rollback()
         print(f"ERRO DO SQLALCHEMY: {e}")
+        new_lead(lead_is_exist_number, db)
         raise HTTPException(status_code=500, detail=str(e))
-
-    else:
-        return new_lead(lead_is_exist_number, db)
