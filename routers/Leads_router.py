@@ -6,9 +6,7 @@ from model.User import UserDB
 from model.models import IdentityDB, UserLeadAssociation
 from model.database import get_db
 from routers.dependencies import (
-    check_if_exists,
-    check_if_exists_login,
-    check_if_exists_lead_user_association,
+    get_record,
 )
 import routers.dependencies
 
@@ -34,9 +32,7 @@ def new_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
     #         status_code=400, detail="O numero já está cadastrado como usuario."
     #     )
 
-    existing_user = check_if_exists_lead_user_association(
-        db, UserDB, "numero", "numero_user", data_lead
-    )
+    existing_user = get_record(db, UserDB, {"numero": data_lead.numero_user}, True)
     if not existing_user:
         raise HTTPException(status_code=404, detail="User não encontrado.")
     new_lead = LeadDB(
@@ -65,15 +61,11 @@ def chat_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
             status_code=400, detail="É necessário informar o numero do usuario"
         )
 
-    existing_lead = check_if_exists_lead_user_association(
-        db, LeadDB, "numero", "numero_lead", data_lead
-    )
+    existing_lead = get_record(db, LeadDB, {"numero": data_lead.numero_lead}, True)
     if not existing_lead:
         raise HTTPException(status_code=404, detail="Lead não encontrado.")
 
-    existing_user = check_if_exists_lead_user_association(
-        db, UserDB, "numero", "numero_user", data_lead
-    )
+    existing_user = get_record(db, UserDB, {"numero": data_lead.numero_user}, True)
 
     if not existing_user:
         raise HTTPException(status_code=404, detail="User não encontrado.")

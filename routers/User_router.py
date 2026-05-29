@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from model.database import get_db
 from model.security import get_password_hash, verify_password
-from routers.dependencies import check_if_exists_login
+from routers.dependencies import get_record
 from model.User import UserDB
 from model.schemas import Creat_new_user, login_user
 
@@ -54,7 +54,7 @@ def add_new_user(user_data: Creat_new_user, db: Session = Depends(get_db)):
 
 @user_routers.post("/validar-user")
 def validar_root(login: login_user, db: Session = Depends(get_db)):
-    user = check_if_exists_login(db, UserDB, "email", login)
+    user = get_record(db, UserDB, {"email": login.email}, True)
     # Busca o user pelo login
     if not user:
         raise HTTPException(status_code=400, detail="Senha ou Login errados")
