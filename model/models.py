@@ -11,21 +11,13 @@ from sqlalchemy.orm import relationship
 from .database import Base
 
 
-class UserLeadAssociation(Base):
-    __tablename__ = "user_lead_association"
+class Admin(Base):
+    __tablename__ = "ADMINISTRADORES"
 
-    user_id = Column("user_id", Integer, ForeignKey("Users.ID"), primary_key=True)
-    lead_id = Column("lead_id", Integer, ForeignKey("Leads.ID"), primary_key=True)
-    data_hora_servico = Column("data_hora_servico", Date)
-    status = Column("status", String)
-    categoria = Column("categoria", String)
-    intencao = Column("intencao", String)
-    satisfacao = Column("satisfacao", Integer)
-    resumo_conversa = Column("resumo_conversa", String)
-
-    # relationships to access parent objects from the association
-    user = relationship("UserDB", back_populates="associations")
-    lead = relationship("LeadDB", back_populates="associations")
+    id = Column("ID", Integer, primary_key=True, index=True)
+    name = Column("Nome", String, nullable=False)
+    login = Column("Login", String, nullable=False, unique=True)
+    senha = Column("Senha", String, nullable=False)
 
 
 class IdentityDB(Base):
@@ -43,10 +35,18 @@ class IdentityDB(Base):
     }
 
 
-class Admin(Base):
-    __tablename__ = "ADMINISTRADORES"
+class UserLeadAssociation(Base):
+    __tablename__ = "user_lead_association"
 
-    id = Column("ID", Integer, primary_key=True, index=True)
-    name = Column("Nome", String, nullable=False)
-    login = Column("Login", String, nullable=False, unique=True)
-    senha = Column("Senha", String, nullable=False)
+    user_id = Column("user_id", Integer, ForeignKey("Users.ID"), primary_key=True)
+    lead_id = Column("lead_id", Integer, ForeignKey("Leads.ID"), primary_key=True)
+    data_hora_servico = Column("data_hora_servico", Date)
+    status = Column("status", String)
+    categoria = Column("categoria", String)
+    intencao = Column("intencao", String)
+    satisfacao = Column("satisfacao", Integer)
+    resumo_conversa = Column("resumo_conversa", String)
+
+    # relationships to access parent objects from the association
+    user = relationship("UserDB", back_populates="associations")
+    lead = relationship("LeadDB", back_populates="associations")

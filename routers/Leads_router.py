@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, dependencies
 from sqlalchemy.orm import Session
-from model.schemas import LeadsCreate, lead_is_exist_number
+from model.schemas import LeadValidation
 from model.Leads import LeadDB
 from model.User import UserDB
 from model.models import IdentityDB, UserLeadAssociation
 from model.database import get_db
-from routers.dependencies import check_if_exists, check_if_exists_login
+from routers.dependencies import (
+    get_record,
+)
 import routers.dependencies
 
 # from routers.dependencies import check_if_exists
@@ -22,30 +24,23 @@ def listar_clientes(db: Session = Depends(get_db)):
 
 
 @Cliente_routers.post("/new_lead")
-def new_lead(data_lead: LeadsCreate, db: Session = Depends(get_db)):
-    if dependencies.check_if_exists(db, LeadDB, "numero", data_lead):
-        raise HTTPException(status_code=400, detail="O numero já está cadastrado.")
-    if dependencies.check_if_exists(db, IdentityDB, "numero", data_lead):
-        raise HTTPException(
-            status_code=400, detail="O numero já está cadastrado como usuario."
-        )
+def new_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
+    # if dependencies.check_if_exists(db, LeadDB, "numero", data_lead):
+    #     raise HTTPException(status_code=400, detail="O numero já está cadastrado.")
+    # if dependencies.check_if_exists(db, IdentityDB, "numero", data_lead):
+    #     raise HTTPException(
+    #         status_code=400, detail="O numero já está cadastrado como usuario."
+    #     )
 
-    users = []
-    if data_lead.user_ids:
-        users = db.query(UserDB).filter(UserDB.id.in_(data_lead.user_ids)).all()
-        if len(users) != len(data_lead.user_ids):
-            raise HTTPException(
-                status_code=404,
-                detail="Um ou mais usuários associados ao lead não foram encontrados.",
-            )
-
+    existing_user = get_record(db, UserDB, {"numero": data_lead.numero_user}, True)
+    if not existing_user:
+        raise HTTPException(status_code=404, detail="User não encontrado.")
     new_lead = LeadDB(
         name=data_lead.name,
-        numero=data_lead.numero,
-        users=users,
-        type="lead",  # Define a identidade polimórfica
+        numero=data_lead.numero_lead,
+        type="lead",
     )
-
+    new_lead.users.append(existing_user)
     try:
         db.add(new_lead)
         db.commit()
@@ -59,38 +54,35 @@ def new_lead(data_lead: LeadsCreate, db: Session = Depends(get_db)):
 
 
 @Cliente_routers.post("/chat-lead")
-def chat_lead(
-    lead_is_exist_number: lead_is_exist_number, db: Session = Depends(get_db)
-):
+def chat_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
     # lead_is_exist_number => user_id passar a ser number id
-    if not lead_is_exist_number.user_ids:
-        raise HTTPException(status_code=400, detail="É necessário informar user_ids.")
-
-    existing_lead = check_if_exists_login(db, LeadDB, "numero", lead_is_exist_number)
-
-    if not existing_lead.id:
-        raise HTTPException(status_code=404, detail="Lead não encontrado.")
-
-    users = db.query(UserDB).filter(UserDB.id.in_(lead_is_exist_number.user_ids)).all()
-
-    if len(users) != len(lead_is_exist_number.user_ids):
+    if not data_lead.numero_user:
         raise HTTPException(
-            status_code=404, detail="Um ou mais usuários não foram encontrados."
+            status_code=400, detail="É necessário informar o numero do usuario"
         )
 
+    existing_lead = get_record(db, LeadDB, {"numero": data_lead.numero_lead}, True)
+    if not existing_lead:
+        raise HTTPException(status_code=404, detail="Lead não encontrado.")
+
+    existing_user = get_record(db, UserDB, {"numero": data_lead.numero_user}, True)
+
+    if not existing_user:
+        raise HTTPException(status_code=404, detail="User não encontrado.")
+
     try:
-        for user in users:
-            association = UserLeadAssociation(user_id=user.id, lead_id=existing_lead.id)
-            db.add(association)
+        association = UserLeadAssociation(
+            user_id=existing_user.id, lead_id=existing_lead.id
+        )
+        db.add(association)
 
         db.commit()
         return {
             "message": "Pareamento(s) criado(s) com sucesso",
             "lead_id": existing_lead.id,
-            "usuarios_vinculados": user.id,
+            "usuarios_vinculados": existing_user.id,
         }
     except Exception as e:
         db.rollback()
         print(f"ERRO DO SQLALCHEMY: {e}")
-        new_lead(lead_is_exist_number, db)
         raise HTTPException(status_code=500, detail=str(e))

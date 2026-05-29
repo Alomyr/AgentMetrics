@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from model.database import get_db
 from model.models import Admin
 from model.security import get_password_hash, verify_password
-from routers.dependencies import check_if_exists, check_if_exists_login
+from routers.dependencies import get_record
 from model.schemas import login_root
 
 admin_router = APIRouter(prefix="/admin", tags=["Administração"])
@@ -34,7 +34,7 @@ def criar_root(name: str, login: str, senha_plana: str, db: Session = Depends(ge
 
 @admin_router.post("/validar-root")
 def validar_root(login: login_root, db: Session = Depends(get_db)):
-    admin = check_if_exists_login(db, Admin, "login", login)
+    admin = get_record(db, Admin, {"login": login.login}, True)
     # Busca o admin pelo login
     if not admin:
         raise HTTPException(status_code=400, detail="Senha ou Login errados")

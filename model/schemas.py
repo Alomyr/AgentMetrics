@@ -5,16 +5,10 @@ from model.enum import StatusEnum
 
 
 # TRATAMENTO DE ENTRADA DO LEAD
-class LeadsCreate(BaseModel):
-    name: str
-    numero: str
-    user_ids: Optional[List[int]] = None  # numero do usuario
-
-
-class lead_is_exist_number(BaseModel):
-    name: str
-    numero: str
-    user_ids: Optional[List[int]] = None  # numero do usuario
+class LeadValidation(BaseModel):
+    name: Optional[str] = None
+    numero_lead: str
+    numero_user: str
 
 
 # TRATAMENTO DE ENTRADA DO USER
