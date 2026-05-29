@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from model.database import get_db
 from model.models import Admin
 from model.security import get_password_hash, verify_password
-from routers.dependencies import check_if_exists, get_record
+from routers.dependencies import get_record
 from model.schemas import login_root
 
 admin_router = APIRouter(prefix="/admin", tags=["Administração"])
