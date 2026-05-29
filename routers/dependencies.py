@@ -30,6 +30,3 @@ def check_if_exists_lead_user_association(
     value = getattr(data, filter_name_lead)
     is_exists = db.query(model).filter(column == value).first()
     return is_exists
-
-
-# refatorar para ser uma função unica essas duas depois
