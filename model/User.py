@@ -13,15 +13,15 @@ class UserDB(models.IdentityDB):
         secondary=models.UserLeadAssociation.__table__,
         back_populates="users",
     )
-    #Empresa nome
-    #um para muitos nova tabela
+    # Empresa nome
+    # muito para muitos
     # association objects (to store extra metadata about the relation)
     associations = relationship(
         "UserLeadAssociation",
         back_populates="user",
         cascade="all, delete-orphan",
     )
-#documentos pos um dia apagar => modelo de documento
+    # documentos pos um dia apagar => modelo de documento
     __mapper_args__ = {"polymorphic_identity": "user"}
 
     def __init__(self, email, senha, **kwargs):
