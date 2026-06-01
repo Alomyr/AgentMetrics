@@ -39,10 +39,21 @@ def add_new_user(user_data: Creat_new_user, db: Session = Depends(get_db)):
 
 ## TODO: criar mentodos get e set de edição remoção
 
+
 @user_routers.post("/nova-senha")
-def edit_password(dados: edit_user_nova_senha, db: Session= Depends(get_db), user=UserDB):
-    
-    return
+def edit_password(dados: edit_user_nova_senha, db: Session = Depends(get_db)):
+    user = get_record(db, UserDB, {"numero": dados.numero}, True)
+    if user:
+        print("to aqui")
+        user_update = db.query(UserDB).filter(UserDB.id == user.id).first()
+        if user_update:
+            user_update.senha = get_password_hash(dados.nova_senha)
+            db.commit()
+            db.refresh(user)
+    return {
+        "message": "Pareamento senha atualizado com sucesso",
+        "User:": user.id,
+    }
 
 
 @user_routers.post("/validar-user")

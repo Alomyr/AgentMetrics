@@ -29,7 +29,8 @@ class Creat_new_user(BaseModel):
 
 
 class edit_user_nova_senha(BaseModel):
-    numero_or_email: Optional[str] = None
+    numero: Optional[str] = None
+    email: Optional[EmailStr] = None
     nova_senha: str
 
 
