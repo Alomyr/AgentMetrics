@@ -49,16 +49,22 @@ def new_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
     return {"message": "Novo Cliente criado com sucesso", "cliente_id": new_lead.id}
 
 
+def validation_lead_user(user, lead, db: Session):
+    association = (
+        db.query(UserLeadAssociation)
+        .filter(
+            UserLeadAssociation.lead_id == lead.id,
+            UserLeadAssociation.user_id == user.id,
+        )
+        .first()
+    )
+    return association
+
+
 def lead_update(data_lead, db: Session, user, lead):
     try:
-        association = (
-            db.query(UserLeadAssociation)
-            .filter(
-                UserLeadAssociation.lead_id == lead.id,
-                UserLeadAssociation.user_id == user.id,
-            )
-            .first()
-        )
+        association = validation_lead_user(user, lead, db)
+
         if association:
             association.categoria = data_lead.categoria
             association.status = data_lead.status.value if data_lead.status else None
@@ -91,20 +97,24 @@ def chat_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
         existing_user = get_record(db, UserDB, {"numero": data_lead.numero_user}, True)
         result_check(existing_user, "User não encontrado.", 404, False)
 
-        if existing_lead.id and existing_user.id:
+        association = validation_lead_user(existing_user, existing_lead, db)
+        if association:
             return lead_update(data_lead, db, existing_user, existing_lead)
-        else:
-            try:
-                association = modulo_lead(existing_user, existing_lead, data_lead)
-                db.add(association)
-                db.commit()
-                return {
-                    "message": "Novo pareamento(s) criado(s) com sucesso",
-                    "lead_id": existing_lead.id,
-                    "usuarios_vinculados": existing_user.id,
-                }
 
-            except Exception as e:
-                db.rollback()
-                print(f"ERRO DO SQLALCHEMY: {e}")
-                raise HTTPException(status_code=500, detail=str(e))
+        try:
+            association = modulo_lead(existing_user, existing_lead, data_lead)
+            # anexar também à lista de associações do lead (mantém o estado ORM consistente)
+            existing_lead.associations.append(association)
+            db.add(association)
+            db.commit()
+            db.refresh(association)
+            return {
+                "message": "Novo pareamento(s) criado(s) com sucesso",
+                "lead_id": existing_lead.id,
+                "usuarios_vinculados": existing_user.id,
+            }
+
+        except Exception as e:
+            db.rollback()
+            print(f"ERRO DO SQLALCHEMY: {e}")
+            raise HTTPException(status_code=500, detail=str(e))
