@@ -1,19 +1,19 @@
-- [ ] criar metodo para atulizar registros de muitos para muitos
-- [ ] criar metodos de edição
+- [X] criar metodo para atulizar registros de muitos para muitos
+- [X] criar metodos de edição
 - [ ] criar metodos de listagem
-- [ ] criar metodos de metricas
-- [ ] criar as rotas de clientes
-- [ ] criar atulizaador de metricas
+- [X] criar metodos de metricas
+- [X] criar as rotas de clientes
+- [X] criar atulizaador de metricas
 - [ ] adiconar metodo para ignorar numero igual mas para types diferentes de usuarios
 - [ ] revisar e refatorar filtros
 - [X] adicionar a variavel satisfação
 - [X] estrutura muitos para muitos
-- [ ] 
+- [ ] criar gets de user e leads
+- [ ] criar metricas variadas
+- [ ] refatorar metodos de metricas
+- [ ] refatorar paginas e lugar de funções
+- [ ] metdos de root
+- [ ] tratamento de erros
 - [ ]
 - [ ]
-- [ ]
-- [ ]
-- [ ]
-- [ ]
-- [ ]
-- [ ]
+- [ ] front-end
