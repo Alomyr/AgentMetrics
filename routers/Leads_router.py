@@ -18,11 +18,21 @@ def listar_clientes(db: Session = Depends(get_db)):
     return {"mensagem": "Lista de clientes"}
 
 
-# @Cliente_routers.post("/new_lead")
-def new_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
+def modulo_lead(existing_user, existing_lead, data_lead):
+    association = UserLeadAssociation(
+        user_id=existing_user.id,
+        lead_id=existing_lead.id,
+        categoria=data_lead.categoria,
+        status=(data_lead.status.value if data_lead.status else None),
+        resumo_conversa=data_lead.resumo_conversa,
+        intencao=data_lead.intencao,
+        data_hora_servico=data_lead.data_hora_servico,
+        satisfacao=data_lead.satisfacao,
+    )
+    return association
 
-    # existing_lead = get_record(db, IdentityDB, {"numero": data_lead.numero_lead})
-    # result_check(existing_lead, "Numero ja cadastrado como user ou como lead.", 400)
+
+def new_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
 
     existing_user = get_record(db, UserDB, {"numero": data_lead.numero_user}, True)
     result_check(existing_user, "User não encontrado.", 404, False)
@@ -32,22 +42,43 @@ def new_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
         numero=data_lead.numero_lead,
         type="lead",
     )
-    # criar associação com campos extras vindo do payload
-    association = UserLeadAssociation(
-        user=existing_user,
-        lead=new_lead,
-        categoria=data_lead.categoria,
-        status=(data_lead.status.value if data_lead.status else None),
-        resumo_conversa=data_lead.resumo_conversa,
-        intencao=data_lead.intencao,
-        data_hora_servico=data_lead.data_hora_servico,
-        satisfacao=data_lead.satisfacao,
-    )
-
+    association = modulo_lead(existing_user, new_lead, data_lead)
     new_lead.associations.append(association)
 
     insert_db(db, new_lead, True)
     return {"message": "Novo Cliente criado com sucesso", "cliente_id": new_lead.id}
+
+
+def lead_update(data_lead, db: Session, user, lead):
+    try:
+        association = (
+            db.query(UserLeadAssociation)
+            .filter(
+                UserLeadAssociation.lead_id == lead.id,
+                UserLeadAssociation.user_id == user.id,
+            )
+            .first()
+        )
+        if association:
+            association.categoria = data_lead.categoria
+            association.status = data_lead.status.value if data_lead.status else None
+            association.resumo_conversa = data_lead.resumo_conversa
+            association.intencao = data_lead.intencao
+            association.data_hora_servico = data_lead.data_hora_servico
+            association.satisfacao = data_lead.satisfacao
+
+            db.commit()
+            db.refresh(association)
+
+            return {
+                "message": "Pareamento atualizado com sucesso",
+                "lead_id": lead.id,
+                "usuario_vinculado": user.id,
+            }
+    except Exception as e:
+        db.rollback()
+        print(f"ERRO DO SQLALCHEMY: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @Cliente_routers.post("/chat-lead")
@@ -60,30 +91,20 @@ def chat_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
         existing_user = get_record(db, UserDB, {"numero": data_lead.numero_user}, True)
         result_check(existing_user, "User não encontrado.", 404, False)
 
-        # veficar na tabela de pareamento se ja existe a associação do user_id e do lead_id
+        if existing_lead.id and existing_user.id:
+            return lead_update(data_lead, db, existing_user, existing_lead)
+        else:
+            try:
+                association = modulo_lead(existing_user, existing_lead, data_lead)
+                db.add(association)
+                db.commit()
+                return {
+                    "message": "Novo pareamento(s) criado(s) com sucesso",
+                    "lead_id": existing_lead.id,
+                    "usuarios_vinculados": existing_user.id,
+                }
 
-        print(f" Lead encontrado, adicionando a tabela de pareamento")
-        try:
-            association = UserLeadAssociation(
-                user_id=existing_user.id,
-                lead_id=existing_lead.id,
-                categoria=data_lead.categoria,
-                status=(data_lead.status.value if data_lead.status else None),
-                resumo_conversa=data_lead.resumo_conversa,
-                intencao=data_lead.intencao,
-                data_hora_servico=data_lead.data_hora_servico,
-                satisfacao=data_lead.satisfacao,
-            )
-            db.add(association)
-
-            db.commit()
-            return {
-                "message": "Pareamento(s) criado(s) com sucesso",
-                "lead_id": existing_lead.id,
-                "usuarios_vinculados": existing_user.id,
-            }
-
-        except Exception as e:
-            db.rollback()
-            print(f"ERRO DO SQLALCHEMY: {e}")
-            raise HTTPException(status_code=500, detail=str(e))
+            except Exception as e:
+                db.rollback()
+                print(f"ERRO DO SQLALCHEMY: {e}")
+                raise HTTPException(status_code=500, detail=str(e))
