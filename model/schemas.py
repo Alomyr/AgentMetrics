@@ -1,11 +1,13 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from datetime import date
-from typing import Optional, List
+from typing import Optional
 from model.enum import StatusEnum
+from pydantic import ConfigDict
 
 
 # TRATAMENTO DE ENTRADA DO LEAD
 class LeadValidation(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     name: Optional[str] = None
     numero_lead: str
     numero_user: str
@@ -13,9 +15,10 @@ class LeadValidation(BaseModel):
 
 # TRATAMENTO DE ENTRADA DO USER
 class Creat_new_user(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     name: str
     numero: str
-    email: str
+    email: EmailStr
     senha: str
 
 

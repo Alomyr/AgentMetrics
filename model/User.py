@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy_utils import EmailType
 from sqlalchemy.orm import relationship
 import model.models as models
 
@@ -6,7 +7,7 @@ import model.models as models
 class UserDB(models.IdentityDB):
     __tablename__ = "Users"
     id = Column("ID", Integer, ForeignKey("Identity.ID"), primary_key=True)
-    email = Column("Email", String, unique=True, nullable=False)
+    email = Column("Email", EmailType, unique=True, nullable=False)
     senha = Column("Senha", String, nullable=False)
     clientes = relationship(
         "LeadDB",
