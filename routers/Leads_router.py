@@ -18,11 +18,12 @@ def listar_clientes(db: Session = Depends(get_db)):
     return {"mensagem": "Lista de clientes"}
 
 
-@Cliente_routers.post("/new_lead")
+# @Cliente_routers.post("/new_lead")
 def new_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
 
-    existing_lead = get_record(db, IdentityDB, {"numero": data_lead.numero_lead})
-    result_check(existing_lead, "Numero ja cadastrado como user ou como lead.", 400)
+    # existing_lead = get_record(db, IdentityDB, {"numero": data_lead.numero_lead})
+    # result_check(existing_lead, "Numero ja cadastrado como user ou como lead.", 400)
+
     existing_user = get_record(db, UserDB, {"numero": data_lead.numero_user}, True)
     result_check(existing_user, "User não encontrado.", 404, False)
 
@@ -39,30 +40,28 @@ def new_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
 
 @Cliente_routers.post("/chat-lead")
 def chat_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
-
-    result_check(
-        data_lead.numero_user, "É necessário informar o numero de usuario.", 400, False
-    )
-
     existing_lead = get_record(db, LeadDB, {"numero": data_lead.numero_lead}, True)
-    result_check(existing_lead, "Lead não encontrado.", 404, False)
-    existing_user = get_record(db, UserDB, {"numero": data_lead.numero_user}, True)
-    result_check(existing_user, "User não encontrado.", 404, False)
 
-    try:
-        association = UserLeadAssociation(
-            user_id=existing_user.id, lead_id=existing_lead.id
-        )
-        db.add(association)
+    if not existing_lead:
+        return f"Lead não encontrado, adicionando o sistema: ", new_lead(data_lead, db)
+    else:
+        existing_user = get_record(db, UserDB, {"numero": data_lead.numero_user}, True)
+        result_check(existing_user, "User não encontrado.", 404, False)
+        print(f" Lead encontrado, adicionando a tabela de pareamento")
+        try:
+            association = UserLeadAssociation(
+                user_id=existing_user.id, lead_id=existing_lead.id
+            )
+            db.add(association)
 
-        db.commit()
-        return {
-            "message": "Pareamento(s) criado(s) com sucesso",
-            "lead_id": existing_lead.id,
-            "usuarios_vinculados": existing_user.id,
-        }
+            db.commit()
+            return {
+                "message": "Pareamento(s) criado(s) com sucesso",
+                "lead_id": existing_lead.id,
+                "usuarios_vinculados": existing_user.id,
+            }
 
-    except Exception as e:
-        db.rollback()
-        print(f"ERRO DO SQLALCHEMY: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        except Exception as e:
+            db.rollback()
+            print(f"ERRO DO SQLALCHEMY: {e}")
+            raise HTTPException(status_code=500, detail=str(e))
