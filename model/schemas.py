@@ -28,6 +28,11 @@ class Creat_new_user(BaseModel):
     senha: str
 
 
+class edit_user_nova_senha(BaseModel):
+    numero_or_email: Optional[str] = None
+    nova_senha: str
+
+
 # TRATAMENTO DE ENTRADA DO ROOT
 class login_root(BaseModel):
     login: str

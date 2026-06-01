@@ -5,7 +5,7 @@ from model.database import get_db
 from model.security import get_password_hash, verify_password
 from routers.dependencies import get_record, result_check, insert_db
 from model.User import UserDB
-from model.schemas import Creat_new_user, login_user
+from model.schemas import Creat_new_user, edit_user_nova_senha, login_user
 
 user_routers = APIRouter(prefix="/user", tags=["User"])
 
@@ -38,6 +38,11 @@ def add_new_user(user_data: Creat_new_user, db: Session = Depends(get_db)):
 
 
 ## TODO: criar mentodos get e set de edição remoção
+
+@user_routers.post("/nova-senha")
+def edit_password(dados: edit_user_nova_senha, db: Session= Depends(get_db), user=UserDB):
+    
+    return
 
 
 @user_routers.post("/validar-user")
