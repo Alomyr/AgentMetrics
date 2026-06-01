@@ -28,14 +28,15 @@ class Creat_new_user(BaseModel):
     senha: str
 
 
-# TRATAMENTO DE ENTRADA DO ROOT
-class login_root(BaseModel):
-    login: str
-    senha: str
+class edit_user(BaseModel):
+    numero: Optional[str] = None
+    nome: Optional[str] = None
+    email: Optional[EmailStr] = None
+    nova_senha: str
 
 
 class login_user(BaseModel):
-    email: str
+    email: EmailStr
     senha: str
 
 
@@ -47,3 +48,9 @@ class user_lead_association:
     intencao: Optional[str] = None
     data_hora_servico: Optional[date] = None
     satisfacao: Optional[int] = None
+
+
+# TRATAMENTO DE ENTRADA DO ROOT
+class login_root(BaseModel):
+    login: str
+    senha: str

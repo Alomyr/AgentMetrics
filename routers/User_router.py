@@ -5,7 +5,7 @@ from model.database import get_db
 from model.security import get_password_hash, verify_password
 from routers.dependencies import get_record, result_check, insert_db
 from model.User import UserDB
-from model.schemas import Creat_new_user, login_user
+from model.schemas import Creat_new_user, edit_user, login_user
 
 user_routers = APIRouter(prefix="/user", tags=["User"])
 
@@ -38,6 +38,81 @@ def add_new_user(user_data: Creat_new_user, db: Session = Depends(get_db)):
 
 
 ## TODO: criar mentodos get e set de edição remoção
+
+
+@user_routers.post("/nova-senha")
+def edit_password(dados: edit_user, db: Session = Depends(get_db)):
+    user = get_record(db, UserDB, {"numero": dados.numero}, True)
+    if user:
+        user_update = db.query(UserDB).filter(UserDB.id == user.id).first()
+        if user_update:
+            user_update.senha = get_password_hash(dados.nova_senha)
+            db.commit()
+            db.refresh(user)
+    return {
+        "message": "Pareamento senha atualizado com sucesso",
+        "User:": user.id,
+    }
+
+
+@user_routers.post("/nova-senha")
+def edit_password(dados: edit_user, db: Session = Depends(get_db)):
+    user = get_record(db, UserDB, {"email": dados.email}, True)
+    if user:
+        user_update = db.query(UserDB).filter(UserDB.id == user.id).first()
+        if user_update:
+            user_update.senha = get_password_hash(dados.nova_senha)
+            db.commit()
+            db.refresh(user)
+    return {
+        "message": "Pareamento senha atualizado com sucesso",
+        "User:": user.id,
+    }
+
+
+@user_routers.post("/novo-email")
+def edit_email(dados: edit_user, db: Session = Depends(get_db)):
+    user = get_record(db, UserDB, {"numero": dados.numero}, True)
+    if user:
+        user_update = db.query(UserDB).filter(UserDB.id == user.id).first()
+        if user_update:
+            user_update.email = dados.email
+            db.commit()
+            db.refresh(user)
+    return {
+        "message": "Pareamento email atualizado com sucesso",
+        "User:": user.id,
+    }
+
+
+@user_routers.post("/novo-numero")
+def edit_numero(dados: edit_user, db: Session = Depends(get_db)):
+    user = get_record(db, UserDB, {"email": dados.email}, True)
+    if user:
+        user_update = db.query(UserDB).filter(UserDB.id == user.id).first()
+        if user_update:
+            user_update.numero = dados.numero
+            db.commit()
+            db.refresh(user)
+    return {
+        "message": "Pareamento numero atualizado com sucesso",
+        "User:": user.id,
+    }
+
+
+@user_routers.post("/novo-nome")
+def edit_nome(dados: edit_user, db: Session = Depends(get_db)):
+    user = get_record(db, UserDB, {"email": dados.email}, True)
+    if user:
+        user_update = db.query(UserDB).filter(UserDB.id == user.id).first()
+        if user_update:
+            user_update.nome = dados.nome
+            db.commit()
+            db.refresh(user)
+    return {
+        "message": "Pareamento nome atualizado com sucesso",
+        "User:": user.id,
+    }
 
 
 @user_routers.post("/validar-user")
