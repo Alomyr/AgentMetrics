@@ -22,6 +22,12 @@ class UserDB(models.IdentityDB):
         back_populates="user",
         cascade="all, delete-orphan",
     )
+    metricas = relationship(
+        "MetricasLeadInUser",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
     # documentos pos um dia apagar => modelo de documento
     __mapper_args__ = {"polymorphic_identity": "user"}
 

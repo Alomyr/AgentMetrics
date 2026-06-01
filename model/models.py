@@ -3,6 +3,8 @@ from sqlalchemy import (
     Integer,
     String,
     Date,
+    DateTime,
+    Float,
     ForeignKey,
     Table,
     UniqueConstraint,
@@ -50,3 +52,21 @@ class UserLeadAssociation(Base):
     # relationships to access parent objects from the association
     user = relationship("UserDB", back_populates="associations")
     lead = relationship("LeadDB", back_populates="associations")
+
+
+class MetricasLeadInUser(Base):
+    __tablename__ = "metricas_lead_in_user"
+
+    id = Column("ID", Integer, primary_key=True, index=True)
+    user_id = Column(
+        "user_id", Integer, ForeignKey("Users.ID"), unique=True, nullable=False
+    )
+    total_leads = Column("total_leads", Integer, default=0)
+    leads_abertos = Column("leads_abertos", Integer, default=0)
+    leads_fechados = Column("leads_fechados", Integer, default=0)
+    avg_satisfacao = Column("avg_satisfacao", Float)
+    avg_response_time = Column("avg_response_time", Integer)
+    last_aggregated = Column("last_aggregated", DateTime)
+
+    # relacionamento para acessar o usuário dono dessas métricas
+    user = relationship("UserDB", back_populates="metricas")

@@ -37,9 +37,8 @@ def add_new_user(user_data: Creat_new_user, db: Session = Depends(get_db)):
     return {"message": "Sucesso", "user_id": novo_user.id}
 
 
-## TODO: criar mentodos get e set de edição remoção
-
-
+# Refatorar os metodos de edição do user,
+# adicionar uma tablea de metricas no user,
 @user_routers.post("/nova-senha")
 def edit_password(dados: edit_user, db: Session = Depends(get_db)):
     user = get_record(db, UserDB, {"numero": dados.numero}, True)
