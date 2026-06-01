@@ -11,6 +11,12 @@ class LeadValidation(BaseModel):
     name: Optional[str] = None
     numero_lead: str
     numero_user: str
+    categoria: Optional[str] = None
+    status: Optional[StatusEnum] = StatusEnum.ABERTO
+    resumo_conversa: Optional[str] = None
+    intencao: Optional[str] = None
+    data_hora_servico: Optional[date] = None
+    satisfacao: Optional[int] = None
 
 
 # TRATAMENTO DE ENTRADA DO USER
@@ -40,4 +46,4 @@ class user_lead_association:
     resumo_conversa: Optional[str] = None
     intencao: Optional[str] = None
     data_hora_servico: Optional[date] = None
-    stisfacao: int
+    satisfacao: Optional[int] = None

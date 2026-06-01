@@ -32,7 +32,19 @@ def new_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
         numero=data_lead.numero_lead,
         type="lead",
     )
-    new_lead.users.append(existing_user)
+    # criar associação com campos extras vindo do payload
+    association = UserLeadAssociation(
+        user=existing_user,
+        lead=new_lead,
+        categoria=data_lead.categoria,
+        status=(data_lead.status.value if data_lead.status else None),
+        resumo_conversa=data_lead.resumo_conversa,
+        intencao=data_lead.intencao,
+        data_hora_servico=data_lead.data_hora_servico,
+        satisfacao=data_lead.satisfacao,
+    )
+
+    new_lead.associations.append(association)
 
     insert_db(db, new_lead, True)
     return {"message": "Novo Cliente criado com sucesso", "cliente_id": new_lead.id}
@@ -47,10 +59,20 @@ def chat_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
     else:
         existing_user = get_record(db, UserDB, {"numero": data_lead.numero_user}, True)
         result_check(existing_user, "User não encontrado.", 404, False)
+
+        # veficar na tabela de pareamento se ja existe a associação do user_id e do lead_id
+
         print(f" Lead encontrado, adicionando a tabela de pareamento")
         try:
             association = UserLeadAssociation(
-                user_id=existing_user.id, lead_id=existing_lead.id
+                user_id=existing_user.id,
+                lead_id=existing_lead.id,
+                categoria=data_lead.categoria,
+                status=(data_lead.status.value if data_lead.status else None),
+                resumo_conversa=data_lead.resumo_conversa,
+                intencao=data_lead.intencao,
+                data_hora_servico=data_lead.data_hora_servico,
+                satisfacao=data_lead.satisfacao,
             )
             db.add(association)
 
