@@ -51,6 +51,7 @@ def new_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
     return {
         "message": "Novo Cliente criado com sucesso",
         "cliente_id": new_lead.id,
+        "Status": association.status,
     }, aggregate_metricas(
         db,
     )
@@ -88,6 +89,7 @@ def lead_update(data_lead, db: Session, user, lead):
                 "message": "Pareamento atualizado com sucesso",
                 "lead_id": lead.id,
                 "usuario_vinculado": user.id,
+                "Status": association.status,
             }, aggregate_metricas(
                 db,
             )
@@ -210,6 +212,7 @@ def chat_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
                 "message": "Novo pareamento(s) criado(s) com sucesso",
                 "lead_id": existing_lead.id,
                 "usuarios_vinculados": existing_user.id,
+                "Status": association.status,
             }, aggregate_metricas(
                 db,
             )
