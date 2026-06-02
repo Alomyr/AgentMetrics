@@ -39,16 +39,17 @@ class IdentityDB(Base):
 
 class UserLeadAssociation(Base):
     __tablename__ = "user_lead_association"
-    # id = Column("ID", Integer, primary_key=True, index=True)
+
     conversa_id = Column("ID da conversao", Integer, primary_key=True)
-    user_id = Column("user_id", Integer, ForeignKey("Users.ID"))
+    
     lead_id = Column("lead_id", Integer, ForeignKey("Leads.ID"))
-    data_hora_servico = Column("data_hora_servico", Date)
+    user_id = Column("user_id", Integer, ForeignKey("Users.ID"))
     status = Column("status", String)
     categoria = Column("categoria", String)
     intencao = Column("intencao", String)
     satisfacao = Column("satisfacao", Integer)
     resumo_conversa = Column("resumo_conversa", String)
+    data_hora_servico = Column("data_hora_servico", Date)
 
     # relationships to access parent objects from the association
     user = relationship("UserDB", back_populates="associations")
