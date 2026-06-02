@@ -8,7 +8,7 @@ from pydantic import ConfigDict
 # TRATAMENTO DE ENTRADA DO LEAD
 class LeadValidation(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    name: str
+    name: Optional[str] = None
     numero_lead: str
     numero_user: str
     categoria: Optional[str] = None
