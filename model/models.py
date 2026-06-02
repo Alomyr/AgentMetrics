@@ -39,9 +39,10 @@ class IdentityDB(Base):
 
 class UserLeadAssociation(Base):
     __tablename__ = "user_lead_association"
-
-    user_id = Column("user_id", Integer, ForeignKey("Users.ID"), primary_key=True)
-    lead_id = Column("lead_id", Integer, ForeignKey("Leads.ID"), primary_key=True)
+    # id = Column("ID", Integer, primary_key=True, index=True)
+    conversa_id = Column("ID da conversao", Integer, primary_key=True)
+    user_id = Column("user_id", Integer, ForeignKey("Users.ID"))
+    lead_id = Column("lead_id", Integer, ForeignKey("Leads.ID"))
     data_hora_servico = Column("data_hora_servico", Date)
     status = Column("status", String)
     categoria = Column("categoria", String)

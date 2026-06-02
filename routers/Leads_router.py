@@ -23,6 +23,7 @@ def modulo_lead(existing_user, existing_lead, data_lead):
     association = UserLeadAssociation(
         user_id=existing_user.id,
         lead_id=existing_lead.id,
+        conversa_id=data_lead.conversa_id,
         categoria=data_lead.categoria,
         status=(data_lead.status.value if data_lead.status else None),
         resumo_conversa=data_lead.resumo_conversa,
@@ -55,12 +56,13 @@ def new_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
     )
 
 
-def validation_lead_user(user, lead, db: Session):
+def validation_lead_user(user, lead, db: Session, data_lead):
     association = (
         db.query(UserLeadAssociation)
         .filter(
             UserLeadAssociation.lead_id == lead.id,
             UserLeadAssociation.user_id == user.id,
+            UserLeadAssociation.conversa_id == data_lead.conversa_id,
         )
         .first()
     )
@@ -69,7 +71,7 @@ def validation_lead_user(user, lead, db: Session):
 
 def lead_update(data_lead, db: Session, user, lead):
     try:
-        association = validation_lead_user(user, lead, db)
+        association = validation_lead_user(user, lead, db, data_lead)
 
         if association:
             association.categoria = data_lead.categoria
@@ -178,7 +180,7 @@ def chat_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
         existing_user = get_record(db, UserDB, {"numero": data_lead.numero_user}, True)
         result_check(existing_user, "User não encontrado.", 404, False)
 
-        association = validation_lead_user(existing_user, existing_lead, db)
+        association = validation_lead_user(existing_user, existing_lead, db, data_lead)
         if association:
             return (lead_update(data_lead, db, existing_user, existing_lead),)
 

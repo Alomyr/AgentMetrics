@@ -9,6 +9,7 @@ from pydantic import ConfigDict
 class LeadValidation(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     name: Optional[str] = None
+    conversa_id: int
     numero_lead: str
     numero_user: str
     categoria: Optional[str] = None
@@ -42,6 +43,7 @@ class login_user(BaseModel):
 
 # TRATAMENTO DE ENTRADA DE PAREAMENTO DE USER E LEAD
 class user_lead_association:
+    conversa_id: int
     categoria: Optional[str] = None
     status: Optional[StatusEnum] = StatusEnum.ABERTO
     resumo_conversa: Optional[str] = None
