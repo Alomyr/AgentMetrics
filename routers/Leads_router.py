@@ -78,8 +78,8 @@ def lead_update(data_lead, db: Session, user, lead):
             association.status = data_lead.status.value if data_lead.status else None
             association.resumo_conversa = data_lead.resumo_conversa
             association.intencao = data_lead.intencao
-            association.data_hora_servico = data_lead.data_hora_servico
             association.satisfacao = data_lead.satisfacao
+            # association.data_hora_servico = data_lead.data_hora_servico
 
             db.commit()
             db.refresh(association)
@@ -170,6 +170,17 @@ def aggregate_metricas(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+def edit_nome(data_lead, db: Session = Depends(get_db)):
+    lead = get_record(db, LeadDB, {"numero": data_lead.numero_lead}, True)
+    lead.name = data_lead.name
+    db.commit()
+    db.refresh(lead)
+    return {
+        "message": "Pareamento nome atualizado com sucesso",
+        "User:": lead.id,
+    }
+
+
 @Cliente_routers.post("/chat-lead")
 def chat_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
     existing_lead = get_record(db, LeadDB, {"numero": data_lead.numero_lead}, True)
@@ -179,8 +190,11 @@ def chat_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
     else:
         existing_user = get_record(db, UserDB, {"numero": data_lead.numero_user}, True)
         result_check(existing_user, "User não encontrado.", 404, False)
+        if existing_lead.name != data_lead.name:
+            edit_nome(data_lead, db)
 
         association = validation_lead_user(existing_user, existing_lead, db, data_lead)
+
         if association:
             return (lead_update(data_lead, db, existing_user, existing_lead),)
 
