@@ -37,9 +37,9 @@ def validate_lead_intencao(existing_user, data_lead):
     if existing_user.intencao is None or data_lead.intencao is None:
         return
 
-    allowed = [item.lower() for item in split_intencao(existing_user.intencao)]
+    allowed = [item.upper() for item in split_intencao(existing_user.intencao)]
     requested = [item for item in split_intencao(data_lead.intencao)]
-    invalid = [item for item in requested if item.lower() not in allowed]
+    invalid = [item for item in requested if item.upper() not in allowed]
     if invalid:
         raise HTTPException(
             status_code=400,
