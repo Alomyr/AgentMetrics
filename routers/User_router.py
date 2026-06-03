@@ -5,7 +5,7 @@ from model.database import get_db
 from model.security import get_password_hash, verify_password
 from routers.dependencies import get_record, result_check, insert_db
 from model.User import UserDB
-from model.schemas import Creat_new_user, edit_user, login_user
+from model.schemas import Creat_new_user, edit_user, login_user, intenso
 
 user_routers = APIRouter(prefix="/user", tags=["User"])
 
@@ -124,3 +124,38 @@ def validar_user(login: login_user, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Senha ou Login errados")
 
     return {"message": "Autenticação bem-sucedida", "login": user.email}
+
+
+def serialize_intencao(value):
+    if value is None:
+        return None
+    if isinstance(value, str):
+        normalized = value.strip()
+        return normalized or None
+    if isinstance(value, list):
+        normalized = [
+            str(item).strip()
+            for item in value
+            if item is not None and str(item).strip()
+        ]
+        return ",".join(normalized) if normalized else None
+    raise HTTPException(
+        status_code=400, detail="intencao deve ser uma string ou lista de strings"
+    )
+
+
+@user_routers.post("/intesao")
+def def_intesao(data_user: intenso, db: Session = Depends(get_db)):
+
+    user_intesao = get_record(db, UserDB, {"numero": data_user.numero}, True)
+
+    if user_intesao:
+        user_update = db.query(UserDB).filter(UserDB.id == user_intesao.id).first()
+        if user_update:
+            user_update.intencao = serialize_intencao(data_user.intencao)
+            db.commit()
+            db.refresh(user_intesao)
+    return {
+        "message": "Pareamento intensao atualizado com sucesso",
+        "User:": user_intesao.id,
+    }

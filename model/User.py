@@ -9,6 +9,10 @@ class UserDB(models.IdentityDB):
     id = Column("ID", Integer, ForeignKey("Identity.ID"), primary_key=True)
     email = Column("Email", EmailType, unique=True, nullable=False)
     senha = Column("Senha", String, nullable=False)
+    intencao = Column(
+        "intensao",
+        String,
+    )
     clientes = relationship(
         "LeadDB",
         secondary=models.UserLeadAssociation.__table__,

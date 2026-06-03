@@ -41,7 +41,7 @@ class UserLeadAssociation(Base):
     __tablename__ = "user_lead_association"
 
     conversa_id = Column("ID da conversao", Integer, primary_key=True)
-    
+
     lead_id = Column("lead_id", Integer, ForeignKey("Leads.ID"))
     user_id = Column("user_id", Integer, ForeignKey("Users.ID"))
     status = Column("status", String)
@@ -63,7 +63,9 @@ class MetricasLeadInUser(Base):
     user_id = Column(
         "user_id", Integer, ForeignKey("Users.ID"), unique=True, nullable=False
     )
+
     total_leads = Column("total_leads", Integer, default=0)
+    leads_pendentes = Column("leads_pendentes", Integer, default=0)
     leads_abertos = Column("leads_abertos", Integer, default=0)
     leads_fechados = Column("leads_fechados", Integer, default=0)
     avg_satisfacao = Column("avg_satisfacao", Float)

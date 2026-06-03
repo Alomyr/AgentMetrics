@@ -19,7 +19,40 @@ def listar_clientes(db: Session = Depends(get_db)):
     return {"mensagem": "Lista de clientes"}
 
 
+def split_intencao(value):
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return [
+            str(item).strip()
+            for item in value
+            if item is not None and str(item).strip()
+        ]
+    if isinstance(value, str):
+        return [item.strip() for item in value.split(",") if item.strip()]
+    raise ValueError("intencao deve ser uma string ou lista de strings")
+
+
+def validate_lead_intencao(existing_user, data_lead):
+    if existing_user.intencao is None or data_lead.intencao is None:
+        return
+
+    allowed = [item.lower() for item in split_intencao(existing_user.intencao)]
+    requested = [item for item in split_intencao(data_lead.intencao)]
+    invalid = [item for item in requested if item.lower() not in allowed]
+    if invalid:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Intenção inválida para este usuário: {invalid}. "
+                f"Somente as intenções permitidas pelo usuário são: {allowed}."
+            ),
+        )
+
+
 def modulo_lead(existing_user, existing_lead, data_lead):
+    validate_lead_intencao(existing_user, data_lead)
+    intent_value = data_lead.intencao or existing_user.intencao
     association = UserLeadAssociation(
         user_id=existing_user.id,
         lead_id=existing_lead.id,
@@ -27,7 +60,7 @@ def modulo_lead(existing_user, existing_lead, data_lead):
         categoria=data_lead.categoria,
         status=(data_lead.status.value if data_lead.status else None),
         resumo_conversa=data_lead.resumo_conversa,
-        intencao=data_lead.intencao,
+        intencao=intent_value,
         data_hora_servico=data_lead.data_hora_servico,
         satisfacao=data_lead.satisfacao,
     )
@@ -75,10 +108,12 @@ def lead_update(data_lead, db: Session, user, lead):
         association = validation_lead_user(user, lead, db, data_lead)
 
         if association:
+            validate_lead_intencao(user, data_lead)
             association.categoria = data_lead.categoria
             association.status = data_lead.status.value if data_lead.status else None
             association.resumo_conversa = data_lead.resumo_conversa
-            association.intencao = data_lead.intencao
+            if data_lead.intencao is not None:
+                association.intencao = data_lead.intencao
             association.satisfacao = data_lead.satisfacao
             # association.data_hora_servico = data_lead.data_hora_servico
 
@@ -108,7 +143,8 @@ def aggregate_metrics_for_user(user: UserDB, db: Session):
     )
 
     total_leads = len(associations)
-    leads_abertos = sum(1 for a in associations if a.status == "ABERTO")
+    pendentes = sum(1 for a in associations if a.status == "PENDENTE")
+    aberto = sum(1 for a in associations if a.status == "ABERTO")
     leads_fechados = sum(1 for a in associations if a.status == "FECHADO")
 
     satisfacoes = [a.satisfacao for a in associations if a.satisfacao is not None]
@@ -125,7 +161,8 @@ def aggregate_metrics_for_user(user: UserDB, db: Session):
 
     if metric:
         metric.total_leads = total_leads
-        metric.leads_abertos = leads_abertos
+        metric.leads_pendentes = pendentes
+        metric.leads_abertos = aberto
         metric.leads_fechados = leads_fechados
         metric.avg_satisfacao = avg_satisfacao
         metric.avg_response_time = avg_response_time
@@ -134,7 +171,7 @@ def aggregate_metrics_for_user(user: UserDB, db: Session):
         metric = MetricasLeadInUser(
             user_id=user.id,
             total_leads=total_leads,
-            leads_abertos=leads_abertos,
+            leads_abertos=pendentes,
             leads_fechados=leads_fechados,
             avg_satisfacao=avg_satisfacao,
             avg_response_time=avg_response_time,

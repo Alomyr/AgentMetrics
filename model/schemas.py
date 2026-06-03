@@ -1,8 +1,26 @@
-from pydantic import BaseModel, EmailStr
+import enum
+
+from pydantic import BaseModel, EmailStr, field_validator
 from datetime import date
-from typing import Optional
-from model.enum import StatusEnum
+from typing import Optional, Union
+from model.enum import Categoria, StatusEnum
 from pydantic import ConfigDict
+
+
+def normalize_intencao_value(value):
+    if value is None:
+        return None
+    if isinstance(value, str):
+        normalized = value.strip()
+        return normalized or None
+    if isinstance(value, list):
+        normalized = [
+            str(item).strip()
+            for item in value
+            if item is not None and str(item).strip()
+        ]
+        return ",".join(normalized) if normalized else None
+    raise ValueError("intencao deve ser uma string ou lista de strings")
 
 
 # TRATAMENTO DE ENTRADA DO LEAD
@@ -12,12 +30,17 @@ class LeadValidation(BaseModel):
     conversa_id: int
     numero_lead: str
     numero_user: str
-    categoria: Optional[str] = None
+    categoria: Optional[str] = Categoria.MEDIA
     status: Optional[StatusEnum] = StatusEnum.ABERTO
     resumo_conversa: Optional[str] = None
-    intencao: Optional[str] = None
+    intencao: Optional[Union[str, list[str]]] = None
     data_hora_servico: Optional[date] = None
     satisfacao: Optional[int] = None
+
+    @field_validator("intencao", mode="before")
+    @classmethod
+    def normalize_intencao(cls, value):
+        return normalize_intencao_value(value)
 
 
 # TRATAMENTO DE ENTRADA DO USER
@@ -34,6 +57,16 @@ class edit_user(BaseModel):
     nome: Optional[str] = None
     email: Optional[EmailStr] = None
     nova_senha: str
+
+
+class intenso(BaseModel):
+    intencao: Optional[Union[str, list[str]]] = None
+    numero: str
+
+    @field_validator("intencao", mode="before")
+    @classmethod
+    def normalize_intencao(cls, value):
+        return normalize_intencao_value(value)
 
 
 class login_user(BaseModel):
