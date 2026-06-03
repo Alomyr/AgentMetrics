@@ -184,7 +184,7 @@ def aggregate_metrics_for_user(user: UserDB, db: Session):
     return metric
 
 
-@Cliente_routers.post("/aggregate-metricas")
+# @Cliente_routers.post("/aggregate-metricas")
 def aggregate_metricas(db: Session = Depends(get_db)):
     try:
         users = db.query(UserDB).all()
