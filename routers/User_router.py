@@ -6,6 +6,9 @@ from model.security import get_password_hash, verify_password
 from routers.dependencies import get_record, result_check, insert_db
 from model.User import UserDB
 from model.schemas import Creat_new_user, edit_user, login_user, intenso
+from jose import jwt, JWTError
+from datetime import datetime, timedelta, timezone
+from config import ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY
 
 user_routers = APIRouter(prefix="/user", tags=["User"])
 
@@ -114,16 +117,32 @@ def edit_nome(dados: edit_user, db: Session = Depends(get_db)):
     }
 
 
+def token(user_id):
+    data_expiracao = datetime.now(timezone.utc) + timedelta(
+        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+    )
+    dic_info = {"sub": user_id, "exp": data_expiracao}
+    token = jwt.encode(dic_info, SECRET_KEY, ALGORITHM)
+    return token
+
+
 @user_routers.post("/validar-user")
 def validar_user(login: login_user, db: Session = Depends(get_db)):
 
     user = get_record(db, UserDB, {"email": login.email}, True)
 
     result_check(user, "Senha ou Login errados", 400, False)
+
     if not verify_password(login.senha, user.senha):
         raise HTTPException(status_code=400, detail="Senha ou Login errados")
-
-    return {"message": "Autenticação bem-sucedida", "login": user.email}
+    else:
+        access_token = token(user.id)
+        return {
+            "access_token": access_token,
+            "token_type": "Bearer",
+            "message": "Autenticação bem-sucedida",
+            "login": user.email,
+        }
 
 
 def serialize_intencao(value):

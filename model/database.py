@@ -1,10 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from config import SQLALCHEMY_DATABASE_URL
 
-# Substitua pelas suas credenciais reais quando fizer o deployd
-# O padrão é: dialect+driver://username:password@host:port/database_name
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:123@localhost:5432/cachina_db"
+# from dotenv import load_dotenv
+# import os
+# load_dotenv()
 
 Base = declarative_base()
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
