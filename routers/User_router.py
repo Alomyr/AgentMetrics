@@ -117,10 +117,8 @@ def edit_nome(dados: edit_user, db: Session = Depends(get_db)):
     }
 
 
-def token(user_id):
-    data_expiracao = datetime.now(timezone.utc) + timedelta(
-        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
-    )
+def token(user_id, duracao=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)):
+    data_expiracao = datetime.now(timezone.utc) + duracao
     dic_info = {"sub": user_id, "exp": data_expiracao}
     token = jwt.encode(dic_info, SECRET_KEY, ALGORITHM)
     return token
@@ -137,8 +135,11 @@ def validar_user(login: login_user, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Senha ou Login errados")
     else:
         access_token = token(user.id)
+        refresh_token = token(user.id, timedelta(days=1))
+
         return {
             "access_token": access_token,
+            "refresh_token": refresh_token,
             "token_type": "Bearer",
             "message": "Autenticação bem-sucedida",
         }
