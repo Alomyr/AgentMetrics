@@ -28,7 +28,9 @@ API de telemetria desenvolvida para monitorar o consumo de recursos e metrificar
 - `main.py` - inicialização da aplicação e registro de rotas
 - `routers/` - rotas da API para `leads`, `user` e administração
 - `model/` - definição do banco, modelos, esquemas, autenticação e validações
+- `config.py` - define as variaveis de ambiente para a api
 - `requirements.txt` - dependências do projeto
+- `.env` - crie ou edite o arquinvo env configurando seu ambiente de criptografia e banco de dados, para caso de edição adicione um . antes do nome do arquivo env => .env
 
 ## Endpoints principais
 
@@ -39,10 +41,6 @@ API de telemetria desenvolvida para monitorar o consumo de recursos e metrificar
 - `GET /user/list-user` - lista usuários
 - `POST /user/cadastro` - cadastra novo usuário
 - `POST /user/validar-user` - valida credenciais de login
-- `POST /user/nova-senha` - altera senha
-- `POST /user/novo-email` - altera email
-- `POST /user/novo-numero` - altera número
-- `POST /user/novo-nome` - altera nome
 
 > Observação: alguns endpoints ainda precisam de implementação completa e validações adicionais.
 
@@ -55,20 +53,20 @@ git clone https://github.com/Alomyr/AgentMetrics.git
 cd AgentMetrics
 ```
 
-2. Crie e ative um ambiente virtual
+1. Crie e ative um ambiente virtual
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 ```
 
-3. Instale as dependências
+1. Instale as dependências
 
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Configure seu banco de dados
+1. Configure seu banco de dados
 
 A aplicação usa SQLAlchemy. Ajuste as variáveis de conexão em `model/database.py` conforme o banco que estiver usando.
 
@@ -76,6 +74,15 @@ A aplicação usa SQLAlchemy. Ajuste as variáveis de conexão em `model/databas
 
 ```bash
 uvicorn main:app --reload
+```
+
+#### nomes paddrao de variaveis de ambiente
+
+```
+SQLALCHEMY_DATABASE_URL="seu link com seu banco de dados deve vim aqui"
+SECRET_KEY=SUA CHAVE SECRETA
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+ALGORITHM=HS256
 ```
 
 Acesse a documentação interativa em `http://127.0.0.1:8000/docs`.
