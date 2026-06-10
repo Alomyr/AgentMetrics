@@ -141,7 +141,6 @@ def validar_user(login: login_user, db: Session = Depends(get_db)):
             "access_token": access_token,
             "token_type": "Bearer",
             "message": "Autenticação bem-sucedida",
-            "login": user.email,
         }
 
 
