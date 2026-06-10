@@ -1,19 +1,17 @@
 - [X] criar metodo para atulizar registros de muitos para muitos
-- [X] criar metodos de edição
 - [ ] criar metodos de listagem
 - [X] criar metodos de metricas
 - [X] criar as rotas de clientes
 - [X] criar atulizaador de metricas
-- [ ] adiconar metodo para ignorar numero igual mas para types diferentes de usuarios
 - [ ] revisar e refatorar filtros
 - [X] adicionar a variavel satisfação
 - [X] estrutura muitos para muitos
 - [ ] criar gets de user e leads
-- [ ] criar metricas variadas
+- [X] criar metricas variadas
 - [ ] refatorar metodos de metricas
 - [ ] refatorar paginas e lugar de funções
 - [ ] metdos de root
 - [ ] tratamento de erros
-- [ ]
-- [ ]
+- [ ] refatorar as funções de edit do user principalmente a de intencao
+- [ ] consumo da api no N8N
 - [ ] front-end
