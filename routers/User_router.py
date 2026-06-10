@@ -39,84 +39,6 @@ def add_new_user(user_data: Creat_new_user, db: Session = Depends(get_db)):
     insert_db(db, novo_user, True)
     return {"message": "Sucesso", "user_id": novo_user.id}
 
-
-# Refatorar os metodos de edição do user,
-# adicionar uma tablea de metricas no user,
-@user_routers.post("/nova-senha")
-def edit_password(dados: edit_user, db: Session = Depends(get_db)):
-    user = get_record(db, UserDB, {"numero": dados.numero}, True)
-    if user:
-        user_update = db.query(UserDB).filter(UserDB.id == user.id).first()
-        if user_update:
-            user_update.senha = get_password_hash(dados.nova_senha)
-            db.commit()
-            db.refresh(user)
-    return {
-        "message": "Pareamento senha atualizado com sucesso",
-        "User:": user.id,
-    }
-
-
-@user_routers.post("/nova-senha")
-def edit_password(dados: edit_user, db: Session = Depends(get_db)):
-    user = get_record(db, UserDB, {"email": dados.email}, True)
-    if user:
-        user_update = db.query(UserDB).filter(UserDB.id == user.id).first()
-        if user_update:
-            user_update.senha = get_password_hash(dados.nova_senha)
-            db.commit()
-            db.refresh(user)
-    return {
-        "message": "Pareamento senha atualizado com sucesso",
-        "User:": user.id,
-    }
-
-
-@user_routers.post("/novo-email")
-def edit_email(dados: edit_user, db: Session = Depends(get_db)):
-    user = get_record(db, UserDB, {"numero": dados.numero}, True)
-    if user:
-        user_update = db.query(UserDB).filter(UserDB.id == user.id).first()
-        if user_update:
-            user_update.email = dados.email
-            db.commit()
-            db.refresh(user)
-    return {
-        "message": "Pareamento email atualizado com sucesso",
-        "User:": user.id,
-    }
-
-
-@user_routers.post("/novo-numero")
-def edit_numero(dados: edit_user, db: Session = Depends(get_db)):
-    user = get_record(db, UserDB, {"email": dados.email}, True)
-    if user:
-        user_update = db.query(UserDB).filter(UserDB.id == user.id).first()
-        if user_update:
-            user_update.numero = dados.numero
-            db.commit()
-            db.refresh(user)
-    return {
-        "message": "Pareamento numero atualizado com sucesso",
-        "User:": user.id,
-    }
-
-
-@user_routers.post("/novo-nome")
-def edit_nome(dados: edit_user, db: Session = Depends(get_db)):
-    user = get_record(db, UserDB, {"email": dados.email}, True)
-    if user:
-        user_update = db.query(UserDB).filter(UserDB.id == user.id).first()
-        if user_update:
-            user_update.nome = dados.nome
-            db.commit()
-            db.refresh(user)
-    return {
-        "message": "Pareamento nome atualizado com sucesso",
-        "User:": user.id,
-    }
-
-
 def token(user_id, duracao=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)):
     data_expiracao = datetime.now(timezone.utc) + duracao
     dic_info = {"sub": user_id, "exp": data_expiracao}
@@ -178,3 +100,81 @@ def def_intesao(data_user: intenso, db: Session = Depends(get_db)):
         "message": "Pareamento intensao atualizado com sucesso",
         "User:": user_intesao.id,
     }
+
+
+
+
+# @user_routers.post("/nova-senha")
+# def edit_password(dados: edit_user, db: Session = Depends(get_db)):
+#     user = get_record(db, UserDB, {"numero": dados.numero}, True)
+#     if user:
+#         user_update = db.query(UserDB).filter(UserDB.id == user.id).first()
+#         if user_update:
+#             user_update.senha = get_password_hash(dados.nova_senha)
+#             db.commit()
+#             db.refresh(user)
+#     return {
+#         "message": "Pareamento senha atualizado com sucesso",
+#         "User:": user.id,
+#     }
+
+
+# @user_routers.post("/nova-senha")
+# def edit_password(dados: edit_user, db: Session = Depends(get_db)):
+#     user = get_record(db, UserDB, {"email": dados.email}, True)
+#     if user:
+#         user_update = db.query(UserDB).filter(UserDB.id == user.id).first()
+#         if user_update:
+#             user_update.senha = get_password_hash(dados.nova_senha)
+#             db.commit()
+#             db.refresh(user)
+#     return {
+#         "message": "Pareamento senha atualizado com sucesso",
+#         "User:": user.id,
+#     }
+
+
+# @user_routers.post("/novo-email")
+# def edit_email(dados: edit_user, db: Session = Depends(get_db)):
+#     user = get_record(db, UserDB, {"numero": dados.numero}, True)
+#     if user:
+#         user_update = db.query(UserDB).filter(UserDB.id == user.id).first()
+#         if user_update:
+#             user_update.email = dados.email
+#             db.commit()
+#             db.refresh(user)
+#     return {
+#         "message": "Pareamento email atualizado com sucesso",
+#         "User:": user.id,
+#     }
+
+
+# @user_routers.post("/novo-numero")
+# def edit_numero(dados: edit_user, db: Session = Depends(get_db)):
+#     user = get_record(db, UserDB, {"email": dados.email}, True)
+#     if user:
+#         user_update = db.query(UserDB).filter(UserDB.id == user.id).first()
+#         if user_update:
+#             user_update.numero = dados.numero
+#             db.commit()
+#             db.refresh(user)
+#     return {
+#         "message": "Pareamento numero atualizado com sucesso",
+#         "User:": user.id,
+#     }
+
+
+# @user_routers.post("/novo-nome")
+# def edit_nome(dados: edit_user, db: Session = Depends(get_db)):
+#     user = get_record(db, UserDB, {"email": dados.email}, True)
+#     if user:
+#         user_update = db.query(UserDB).filter(UserDB.id == user.id).first()
+#         if user_update:
+#             user_update.nome = dados.nome
+#             db.commit()
+#             db.refresh(user)
+#     return {
+#         "message": "Pareamento nome atualizado com sucesso",
+#         "User:": user.id,
+#     }
+
