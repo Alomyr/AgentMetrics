@@ -1,8 +1,9 @@
+from dns import query
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from model.database import get_db
-from model.security import get_password_hash, verify_password
+from model.security import get_password_hash, verify_password, verificar_token
 from routers.dependencies import get_record, result_check, insert_db
 from model.User import UserDB
 from model.schemas import Creat_new_user, edit_user, login_user, intenso
@@ -39,14 +40,15 @@ def add_new_user(user_data: Creat_new_user, db: Session = Depends(get_db)):
     insert_db(db, novo_user, True)
     return {"message": "Sucesso", "user_id": novo_user.id}
 
+
 def token(user_id, duracao=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)):
     data_expiracao = datetime.now(timezone.utc) + duracao
-    dic_info = {"sub": user_id, "exp": data_expiracao}
+    dic_info = {"sub": str(user_id), "exp": data_expiracao}
     token = jwt.encode(dic_info, SECRET_KEY, ALGORITHM)
     return token
 
 
-@user_routers.post("/validar-user")
+@user_routers.post("/login")
 def validar_user(login: login_user, db: Session = Depends(get_db)):
 
     user = get_record(db, UserDB, {"email": login.email}, True)
@@ -65,6 +67,16 @@ def validar_user(login: login_user, db: Session = Depends(get_db)):
             "token_type": "Bearer",
             "message": "Autenticação bem-sucedida",
         }
+
+
+@user_routers.get("/refresh")
+async def use_refresh_token(user: UserDB = Depends(verificar_token)):
+    acces_token = token(user.id)
+    return {
+        "access_token": acces_token,
+        "token_type": "Bearer",
+        "message": "Autenticação bem-sucedida",
+    }
 
 
 def serialize_intencao(value):
@@ -100,8 +112,6 @@ def def_intesao(data_user: intenso, db: Session = Depends(get_db)):
         "message": "Pareamento intensao atualizado com sucesso",
         "User:": user_intesao.id,
     }
-
-
 
 
 # @user_routers.post("/nova-senha")
@@ -177,4 +187,3 @@ def def_intesao(data_user: intenso, db: Session = Depends(get_db)):
 #         "message": "Pareamento nome atualizado com sucesso",
 #         "User:": user.id,
 #     }
-

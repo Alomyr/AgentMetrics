@@ -1,5 +1,6 @@
 from dns import query
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
 from model.database import get_db
 from sqlalchemy.orm import Session
 
@@ -35,3 +36,19 @@ def insert_db(db: Session, object, refresh=False):
         # Imprima o erro real para saber o que está acontecendo no banco
         print(f"ERRO DO SQLALCHEMY: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# def verificar_token(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+#     from jose import jwt, JWTError
+#     from model.User import UserDB
+#     from config import SECRET_KEY, ALGORITHM
+
+#     try:
+#         dict_info = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+#         id_user = dict_info.get("sub")
+#     except JWTError:
+#         raise HTTPException(status_code=401, detail="Acesso negado")
+#     user = db.query(UserDB).filter(UserDB.id == int(id_user)).first()
+#     if not user:
+#         raise HTTPException(status_code=400, detail="Usuário não existe")
+#     return user

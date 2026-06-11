@@ -15,3 +15,12 @@
 - [ ] refatorar as funções de edit do user principalmente a de intencao
 - [ ] consumo da api no N8N
 - [ ] front-end
+- [ ] arrumar a parte do fechamento da conversa para metrificar estados separados do fechamento
+
+# reuniao
+
+Relatorios Metricas
+Clientes na base
+Mensagens enviadas - Por campanha
+Taxa de entrega => tem q restrurar o banco
+Taxa de resposta => tem q restrurar o banco

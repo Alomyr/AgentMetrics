@@ -7,6 +7,7 @@ from routers.Leads_router import Cliente_routers
 from routers.User_router import user_routers
 from routers.admin_router import admin_router
 from model.models import Admin
+from fastapi.security import OAuth2PasswordBearer
 
 app = FastAPI()
 Base.metadata.create_all(bind=engine)
