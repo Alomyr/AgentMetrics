@@ -70,6 +70,36 @@ pip install -r requirements.txt
 
 A aplicação usa SQLAlchemy. Ajuste as variáveis de conexão em `model/database.py` conforme o banco que estiver usando.
 
+## Frontend React
+
+O frontend está em `FrontEnd/` e usa React + Axios.
+
+1. Vá para a pasta do frontend:
+
+```bash
+cd FrontEnd
+```
+
+1. Instale as dependências:
+
+```bash
+npm install
+```
+
+1. Inicie o frontend:
+
+```bash
+npm run dev
+```
+
+> O frontend já está configurado para proxy de `/api` para `http://127.0.0.1:8000`, então a FastAPI deve estar rodando em `http://127.0.0.1:8000`.
+
+### Git e dependências
+
+- Não commite `FrontEnd/node_modules/`.
+- Commit apenas `FrontEnd/package.json`, `FrontEnd/package-lock.json`, `FrontEnd/src/`, `FrontEnd/vite.config.js` e `FrontEnd/index.html`.
+- O `node_modules/` fica local; cada desenvolvedor instala com `npm install`.
+
 ## Execução
 
 ```bash

@@ -220,3 +220,8 @@ __marimo__/
 # Python Virtual Env
 .venv/
 venv/
+
+# Frontend local dependencies
+FrontEnd/node_modules/
+FrontEnd/dist/
+FrontEnd/.vite/
