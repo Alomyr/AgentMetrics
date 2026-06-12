@@ -1,46 +1,50 @@
+import axios from "axios";
+
 const API_PREFIX = "/api";
+const api = axios.create({
+  baseURL: API_PREFIX,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
 export async function fetchUsers() {
-  const response = await fetch(`${API_PREFIX}/user/list-user`);
-  if (!response.ok) {
-    throw new Error(`Erro ao buscar usuários: ${response.statusText}`);
+  try {
+    const response = await api.get("/user/list-user");
+    return response.data;
+  } catch (error) {
+    const message = error.response?.data?.detail || error.message;
+    throw new Error(`Erro ao buscar usuários: ${message}`);
   }
-  return response.json();
 }
 
 export async function loginUser(email, senha) {
-  const response = await fetch(`${API_PREFIX}/user/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email, senha }),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => null);
-    throw new Error(errorData?.detail || "Falha no login");
+  try {
+    const response = await api.post("/user/login", { email, senha });
+    return response.data;
+  } catch (error) {
+    const message = error.response?.data?.detail || error.message;
+    throw new Error(message || "Falha no login");
   }
-
-  return response.json();
 }
 
 export async function fetchWithToken(path, token, options = {}) {
-  const headers = {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
-    ...options.headers,
-  };
-
-  const response = await fetch(`${API_PREFIX}${path}`, {
-    ...options,
-    headers,
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => null);
-    throw new Error(errorData?.detail || response.statusText);
+  try {
+    const response = await api({
+      url: path,
+      method: options.method || "get",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        ...options.headers,
+      },
+      data: options.body || options.data || null,
+      params: options.params || null,
+    });
+    return response.data;
+  } catch (error) {
+    const message = error.response?.data?.detail || error.message;
+    throw new Error(
+      message || error.response?.statusText || "Erro na requisição",
+    );
   }
-
-  return response.json();
 }
