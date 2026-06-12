@@ -4,11 +4,11 @@ from dotenv import load_dotenv
 import os
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException
-from backend.model.database import get_db
+from backend.src.core.database import get_db
 from sqlalchemy.orm import Session
 from jose import jwt, JWTError
-from backend.model.User import UserDB
-from backend.config import SECRET_KEY, ALGORITHM
+from backend.src.users.model import UserDB
+from backend.src.core.config import SECRET_KEY, ALGORITHM
 
 load_dotenv()
 SECURITY_KEY = os.getenv("SECURITY_KEY")

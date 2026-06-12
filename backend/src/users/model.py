@@ -1,7 +1,20 @@
 from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from sqlalchemy_utils import EmailType
 from sqlalchemy.orm import relationship
-import backend.model.models as models
+import backend.src.utils.models as models
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Date,
+    DateTime,
+    Float,
+    ForeignKey,
+    Table,
+    UniqueConstraint,
+)
+from sqlalchemy.orm import relationship
+from backend.src.core.database import Base
 
 
 class UserDB(models.IdentityDB):
@@ -15,7 +28,7 @@ class UserDB(models.IdentityDB):
     )
     clientes = relationship(
         "LeadDB",
-        secondary=models.UserLeadAssociation.__table__,
+        secondary="user_lead_association",
         back_populates="users",
     )
     # Empresa nome
@@ -42,3 +55,23 @@ class UserDB(models.IdentityDB):
         self.senha = senha  # colocar logica de criptografia
 
         self.type = "user"
+
+
+class MetricasLeadInUser(Base):
+    __tablename__ = "metricas_lead_in_user"
+
+    id = Column("ID", Integer, primary_key=True, index=True)
+    user_id = Column(
+        "user_id", Integer, ForeignKey("Users.ID"), unique=True, nullable=False
+    )
+
+    total_leads = Column("total_leads", Integer, default=0)
+    leads_pendentes = Column("leads_pendentes", Integer, default=0)
+    leads_abertos = Column("leads_abertos", Integer, default=0)
+    leads_fechados = Column("leads_fechados", Integer, default=0)
+    avg_satisfacao = Column("avg_satisfacao", Float)
+    avg_response_time = Column("avg_response_time", Integer)
+    last_aggregated = Column("last_aggregated", DateTime)
+
+    # relacionamento para acessar o usuário dono dessas métricas
+    user = relationship("UserDB", back_populates="metricas")

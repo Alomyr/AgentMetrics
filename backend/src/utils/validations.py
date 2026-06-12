@@ -1,7 +1,5 @@
 from dns import query
 from fastapi import Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer
-from backend.model.database import get_db
 from sqlalchemy.orm import Session
 
 
@@ -36,6 +34,21 @@ def insert_db(db: Session, object, refresh=False):
         # Imprima o erro real para saber o que está acontecendo no banco
         print(f"ERRO DO SQLALCHEMY: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+def normalize_intencao_value(value):
+    if value is None:
+        return None
+    if isinstance(value, str):
+        normalized = value.strip()
+        return normalized or None
+    if isinstance(value, list):
+        normalized = [
+            str(item).strip()
+            for item in value
+            if item is not None and str(item).strip()
+        ]
+        return ",".join(normalized) if normalized else None
+    raise ValueError("intencao deve ser uma string ou lista de strings")
 
 
 # def verificar_token(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):

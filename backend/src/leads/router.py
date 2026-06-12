@@ -1,16 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException, dependencies
 from sqlalchemy.orm import Session
-from backend.model.schemas import LeadValidation
-from backend.model.Leads import LeadDB
-from backend.model.User import UserDB
-from backend.model.models import IdentityDB, UserLeadAssociation, MetricasLeadInUser
+from backend.src.leads.schemas import LeadValidation
+from backend.src.leads.model import LeadDB
+from backend.src.users.model import UserDB
+from backend.src.utils.models import IdentityDB
+from backend.src.leads.model import UserLeadAssociation
+from backend.src.users.model import MetricasLeadInUser
 from datetime import datetime
-from backend.model.database import get_db
-from backend.routers.dependencies import get_record, result_check, insert_db
-import backend.routers.dependencies
+from backend.src.core.database import get_db
+from backend.src.utils.validations import get_record, result_check, insert_db
+import backend.src.utils.validations
 
 Cliente_routers = APIRouter(prefix="/leads", tags=["Leads"])
-dependencies = backend.routers.dependencies
+dependencies = backend.src.utils.validations
 
 
 @Cliente_routers.get("/list-lead-in-user")
