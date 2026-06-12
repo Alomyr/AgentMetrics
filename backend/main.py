@@ -1,12 +1,12 @@
 from fastapi import FastAPI
-from config import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
+from backend.config import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
 
 # Importar depois de carregar as variáveis de ambiente (via config)
-from model.database import engine, Base
-from routers.Leads_router import Cliente_routers
-from routers.User_router import user_routers
-from routers.admin_router import admin_router
-from model.models import Admin
+from backend.model.database import engine, Base
+from backend.routers.Leads_router import Cliente_routers
+from backend.routers.User_router import user_routers
+from backend.routers.admin_router import admin_router
+from backend.model.models import Admin
 from fastapi.security import OAuth2PasswordBearer
 
 app = FastAPI()

@@ -2,14 +2,14 @@ from dns import query
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from model.database import get_db
-from model.security import get_password_hash, verify_password, verificar_token
-from routers.dependencies import get_record, result_check, insert_db
-from model.User import UserDB
-from model.schemas import Creat_new_user, edit_user, login_user, intenso
+from backend.model.database import get_db
+from backend.model.security import get_password_hash, verify_password, verificar_token
+from backend.routers.dependencies import get_record, result_check, insert_db
+from backend.model.User import UserDB
+from backend.model.schemas import Creat_new_user, edit_user, login_user, intenso
 from jose import jwt, JWTError
 from datetime import datetime, timedelta, timezone
-from config import ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY
+from backend.config import ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY
 
 user_routers = APIRouter(prefix="/user", tags=["User"])
 

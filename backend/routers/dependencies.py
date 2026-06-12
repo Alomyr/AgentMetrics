@@ -1,7 +1,7 @@
 from dns import query
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from model.database import get_db
+from backend.model.database import get_db
 from sqlalchemy.orm import Session
 
 

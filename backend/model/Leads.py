@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from sqlalchemy.orm import relationship
-import model.models as models
-from model.enum import StatusEnum
+import backend.model.models as models
+from backend.model.enum import StatusEnum
 
 
 class LeadDB(models.IdentityDB):
