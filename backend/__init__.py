@@ -1,1 +1,1 @@
-# Backend package marker
+"""Backend package initializer."""

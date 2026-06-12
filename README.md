@@ -124,3 +124,43 @@ Contribuições são bem-vindas. Abra issues ou pull requests para propor melhor
 ## Licença
 
 Este projeto pode ser distribuído conforme a licença escolhida pelo mantenedor.
+
+
+
+backend/
+│── src/
+│   │── main.py              # inicialização da aplicação
+│   │── core/                # núcleo global
+│   │   │── config.py        # configs globais
+│   │   │── database.py      # conexão DB
+│   │   │── security.py      # autenticação/autorização
+│   │   │── logging.py       # logs globais
+│   │── users/
+│   │   │── router.py        # rotas de usuários
+│   │   │── models.py        # modelo User
+│   │   │── schemas.py       # schema User
+│   │   │── service.py       # lógica de negócio
+│   │   │── dependencies.py  # dependências específicas
+│   │── leads/
+│   │   │── router.py
+│   │   │── models.py
+│   │   │── schemas.py
+│   │   │── service.py
+│   │   │── dependencies.py
+│   │── admin/
+│   │   │── router.py
+│   │   │── models.py
+│   │   │── schemas.py
+│   │   │── service.py
+│   │── utils/
+│   │   │── enums.py
+│   │   │── helpers.py
+│── tests/
+│   │── users/
+│   │   │── test_users.py
+│   │── leads/
+│   │   │── test_leads.py
+│   │── admin/
+│   │   │── test_admin.py
+│── requirements.txt
+│── README.md
