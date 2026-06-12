@@ -12,7 +12,14 @@ function App() {
       setError(null);
       try {
         const data = await fetchUsers();
-        setUsers(data);
+        if (Array.isArray(data)) {
+          setUsers(data);
+        } else if (data?.mensagem) {
+          setError(data.mensagem);
+          setUsers([]);
+        } else {
+          setUsers([]);
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -23,6 +30,11 @@ function App() {
     loadUsers();
   }, []);
 
+  const emptyMessage =
+    !loading && !error && users.length === 0
+      ? "Nenhum usuário encontrado."
+      : null;
+
   return (
     <div className="app-container">
       <h1>Front-end Cachina</h1>
@@ -30,10 +42,13 @@ function App() {
 
       {loading && <p>Carregando usuários...</p>}
       {error && <p className="error">Erro: {error}</p>}
+      {emptyMessage && <p>{emptyMessage}</p>}
 
       <ul>
         {users.map((user) => (
-          <li key={user.id || user.email}>{user.nome || user.email}</li>
+          <li key={user.id || user.email}>
+            {user.name || user.nome || user.email}
+          </li>
         ))}
       </ul>
     </div>

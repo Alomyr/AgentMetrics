@@ -19,8 +19,17 @@ user_routers = APIRouter(prefix="/user", tags=["User"])
 
 @user_routers.get("/list-user")
 def listar_user(db: Session = Depends(get_db)):
-    # Aqui lógica de consulta ao banco
-    return {"mensagem": "Lista de usuarios"}
+    users = db.query(UserDB).all()
+    return [
+        {
+            "id": user.id,
+            "name": getattr(user, "name", None) or getattr(user, "nome", None),
+            "numero": getattr(user, "numero", None),
+            "email": user.email,
+            "intencao": user.intencao,
+        }
+        for user in users
+    ]
 
 
 @user_routers.post("/cadastro")
