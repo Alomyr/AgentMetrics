@@ -4,7 +4,7 @@ Script para testar a validade do token JWT
 
 from jose import jwt, JWTError
 from datetime import datetime, timezone
-from config import SECRET_KEY, ALGORITHM
+from backend.config import SECRET_KEY, ALGORITHM
 import requests
 
 header = {

@@ -3,7 +3,7 @@ import enum
 from pydantic import BaseModel, EmailStr, field_validator
 from datetime import date
 from typing import Optional, Union
-from model.enum import Categoria, StatusEnum
+from backend.model.enum import Categoria, StatusEnum
 from pydantic import ConfigDict
 
 

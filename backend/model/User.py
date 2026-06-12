@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from sqlalchemy_utils import EmailType
 from sqlalchemy.orm import relationship
-import model.models as models
+import backend.model.models as models
 
 
 class UserDB(models.IdentityDB):
