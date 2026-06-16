@@ -15,12 +15,6 @@ Cliente_routers = APIRouter(prefix="/leads", tags=["Leads"])
 dependencies = backend.src.utils.validations
 
 
-@Cliente_routers.get("/list-lead-in-user")
-def listar_clientes(db: Session = Depends(get_db)):
-    # Aqui lógica de consulta ao banco
-    return {"mensagem": "Lista de clientes"}
-
-
 def split_intencao(value):
     if value is None:
         return []
@@ -56,9 +50,11 @@ def modulo_lead(existing_user, existing_lead, data_lead):
     validate_lead_intencao(existing_user, data_lead)
     intent_value = data_lead.intencao or existing_user.intencao
     association = UserLeadAssociation(
+        conversa_id=data_lead.conversa_id,
         user_id=existing_user.id,
         lead_id=existing_lead.id,
-        conversa_id=data_lead.conversa_id,
+        lead_name=data_lead.name,
+        lead_number=data_lead.numero_lead,
         categoria=data_lead.categoria,
         status=(data_lead.status.value if data_lead.status else None),
         resumo_conversa=data_lead.resumo_conversa,

@@ -41,9 +41,12 @@ class UserLeadAssociation(Base):
     __tablename__ = "user_lead_association"
 
     conversa_id = Column("ID da conversao", Integer, primary_key=True)
-
     lead_id = Column("lead_id", Integer, ForeignKey("Leads.ID"))
     user_id = Column("user_id", Integer, ForeignKey("Users.ID"))
+
+    lead_name = Column("lead_name", String)
+    lead_number = Column("lead_number", String)
+
     status = Column("status", String)
     categoria = Column("categoria", String)
     intencao = Column("intencao", String)

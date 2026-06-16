@@ -23,7 +23,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
-oauth2_schema = OAuth2PasswordBearer(tokenUrl="user/login")
+oauth2_schema = OAuth2PasswordBearer(tokenUrl="user/login-forms")
 
 
 def verificar_token(token: str = Depends(oauth2_schema), db: Session = Depends(get_db)):
