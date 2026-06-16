@@ -117,7 +117,7 @@ async def use_refresh_token(user: UserDB = Depends(verificar_token)):
     }
 
 
-@user_routers.get("list-leads")
+@user_routers.get("list-leads") 
 async def list_leads(
     user: UserDB = Depends(verificar_token),
     db: Session = Depends(get_db),
@@ -140,7 +140,7 @@ async def list_leads(
         }
         for user in user_login
     ]
-
+# tabela de metricas segue a mesma logica aqui 
 
 def serialize_intencao(value):
     if value is None:
