@@ -25,19 +25,19 @@ user_routers = APIRouter(prefix="/user", tags=["User"])
 # tem q permitir a promoção de lead para user avaliar
 
 
-@user_routers.get("/list-user")
-def listar_user(db: Session = Depends(get_db)):
-    users = db.query(UserDB).all()
-    return [
-        {
-            "id": user.id,
-            "name": getattr(user, "name", None) or getattr(user, "nome", None),
-            "numero": getattr(user, "numero", None),
-            "email": user.email,
-            "intencao": user.intencao,
-        }
-        for user in users
-    ]
+# @user_routers.get("/list-user")
+# def listar_user(db: Session = Depends(get_db)):
+#     users = db.query(UserDB).all()
+#     return [
+#         {
+#             "id": user.id,
+#             "name": getattr(user, "name", None) or getattr(user, "nome", None),
+#             "numero": getattr(user, "numero", None),
+#             "email": user.email,
+#             "intencao": user.intencao,
+#         }
+#         for user in users
+#     ]
 
 
 @user_routers.post("/cadastro")
@@ -117,7 +117,7 @@ async def use_refresh_token(user: UserDB = Depends(verificar_token)):
     }
 
 
-@user_routers.get("list-leads") 
+@user_routers.get("list-leads")
 async def list_leads(
     user: UserDB = Depends(verificar_token),
     db: Session = Depends(get_db),
@@ -140,7 +140,10 @@ async def list_leads(
         }
         for user in user_login
     ]
-# tabela de metricas segue a mesma logica aqui 
+
+
+# tabela de metricas segue a mesma logica aqui
+
 
 def serialize_intencao(value):
     if value is None:
