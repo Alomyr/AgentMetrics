@@ -87,7 +87,7 @@ async def login(login: login_user, db: Session = Depends(get_db)):
 
 
 @user_routers.post("/login-forms")
-async def login(
+async def login_forms(
     login: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
 
@@ -117,7 +117,7 @@ async def use_refresh_token(user: UserDB = Depends(verificar_token)):
     }
 
 
-@user_routers.get("list-leads")
+@user_routers.get("/list-leads")
 async def list_leads(
     user: UserDB = Depends(verificar_token),
     db: Session = Depends(get_db),
