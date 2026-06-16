@@ -164,9 +164,15 @@ def serialize_intencao(value):
 
 
 @user_routers.post("/intesao")
-def def_intesao(data_user: intenso, db: Session = Depends(get_db)):
+async def def_intesao(
+    data_user: intenso,
+    db: Session = Depends(get_db),
+    user: UserDB = Depends(verificar_token),
+):
 
-    user_intesao = get_record(db, UserDB, {"numero": data_user.numero}, True)
+    acces_token = token(user.id)
+
+    user_intesao = get_record(db, UserDB, {"id": user.id}, True)
 
     if user_intesao:
         user_update = db.query(UserDB).filter(UserDB.id == user_intesao.id).first()

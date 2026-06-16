@@ -1,8 +1,8 @@
-
 from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional, Union
 from pydantic import ConfigDict
 from backend.src.utils.validations import normalize_intencao_value
+
 
 # TRATAMENTO DE ENTRADA DO USER
 class Creat_new_user(BaseModel):
@@ -22,7 +22,6 @@ class edit_user(BaseModel):
 
 class intenso(BaseModel):
     intencao: Optional[Union[str, list[str]]] = None
-    numero: str
 
     @field_validator("intencao", mode="before")
     @classmethod
