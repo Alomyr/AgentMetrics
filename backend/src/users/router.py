@@ -8,12 +8,16 @@ from backend.src.core.security import (
     verify_password,
     verificar_token,
 )
+from backend.src.leads.model import LeadDB
+from backend.src.utils.schemas import user_lead_association
 from backend.src.utils.validations import get_record, result_check, insert_db
 from backend.src.users.model import UserDB
 from backend.src.users.schemas import Creat_new_user, login_user, intenso
 from jose import jwt, JWTError
 from datetime import datetime, timedelta, timezone
 from backend.src.core.config import ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY
+from fastapi.security import OAuth2PasswordRequestForm
+from backend.src.leads.model import UserLeadAssociation
 
 user_routers = APIRouter(prefix="/user", tags=["User"])
 
@@ -62,7 +66,7 @@ def token(user_id, duracao=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)):
 
 
 @user_routers.post("/login")
-def validar_user(login: login_user, db: Session = Depends(get_db)):
+async def login(login: login_user, db: Session = Depends(get_db)):
 
     user = get_record(db, UserDB, {"email": login.email}, True)
 
@@ -82,6 +86,27 @@ def validar_user(login: login_user, db: Session = Depends(get_db)):
         }
 
 
+@user_routers.post("/login-forms")
+async def login(
+    login: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
+):
+
+    user = get_record(db, UserDB, {"email": login.username}, True)
+
+    result_check(user, "Senha ou Login errados", 400, False)
+
+    if not verify_password(login.password, user.senha):
+        raise HTTPException(status_code=400, detail="Senha ou Login errados")
+    else:
+        access_token = token(user.id)
+
+        return {
+            "access_token": access_token,
+            "token_type": "Bearer",
+            "message": "Autenticação bem-sucedida",
+        }
+
+
 @user_routers.get("/refresh")
 async def use_refresh_token(user: UserDB = Depends(verificar_token)):
     acces_token = token(user.id)
@@ -90,6 +115,31 @@ async def use_refresh_token(user: UserDB = Depends(verificar_token)):
         "token_type": "Bearer",
         "message": "Autenticação bem-sucedida",
     }
+
+
+@user_routers.get("list-leads")
+async def list_leads(
+    user: UserDB = Depends(verificar_token),
+    db: Session = Depends(get_db),
+):
+    user_login = (
+        db.query(UserLeadAssociation)
+        .filter(UserLeadAssociation.user_id == user.id)
+        .all()
+    )
+    return [
+        {
+            "id": user.lead_id,
+            "nome": user.lead_name,
+            "numero": user.lead_number,
+            "Status": user.status,
+            "intencao": user.intencao,
+            "satisfação": user.satisfacao,
+            "resumo": user.resumo_conversa,
+            "data": user.data_hora_servico,
+        }
+        for user in user_login
+    ]
 
 
 def serialize_intencao(value):
