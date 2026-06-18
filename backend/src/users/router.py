@@ -18,50 +18,9 @@ from datetime import datetime, timedelta, timezone
 from backend.src.core.config import ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY
 from fastapi.security import OAuth2PasswordRequestForm
 from backend.src.leads.model import UserLeadAssociation
+from backend.src.users.service import token, serialize_intencao
 
 user_routers = APIRouter(prefix="/user", tags=["User"])
-
-
-def token(
-    user_id: int, duracao: timedelta = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-) -> str:
-    """
-    Gera um token criptográfico JWT assinado para o usuário.
-
-    Args:
-        user_id (int): Identificador único do usuário que será inserido no claim 'sub'.
-        duracao (timedelta): Tempo de validade do token. Padrão: ACCESS_TOKEN_EXPIRE_MINUTES.
-
-    Returns:
-        str: String codificada do token JWT.
-    """
-    data_expiracao = datetime.now(timezone.utc) + duracao
-    dic_info = {"sub": str(user_id), "exp": data_expiracao}
-    return jwt.encode(dic_info, SECRET_KEY, algorithm=ALGORITHM)
-
-
-def serialize_intencao(value) -> str | None:
-    """
-    Sanitiza e normaliza o campo intenção para gravação consistente no banco de dados.
-
-    Converte formatos mistos (listas ou strings isoladas) em uma única string
-    separada por vírgulas e sem espaços residuais.
-    """
-    if value is None:
-        return None
-    if isinstance(value, str):
-        normalized = value.strip()
-        return normalized or None
-    if isinstance(value, list):
-        normalized = [
-            str(item).strip()
-            for item in value
-            if item is not None and str(item).strip()
-        ]
-        return ",".join(normalized) if normalized else None
-    raise HTTPException(
-        status_code=400, detail="intencao deve ser uma string ou lista de strings"
-    )
 
 
 @user_routers.post("/cadastro")
@@ -128,7 +87,7 @@ async def login_forms(
     }
 
 
-@user_routers.get("/refresh")
+@user_routers.get("/refresh")  # refatorar esse metodo para virar um def simples
 async def use_refresh_token(user: UserDB = Depends(verificar_token)):
     """
     Gera e retorna um novo token de acesso válido a partir de uma sessão de usuário ativa.
@@ -193,67 +152,7 @@ async def def_intesao(
     }
 
 
-# @user_routers.post("/nova-senha")
-# def edit_password(dados: edit_user, db: Session = Depends(get_db)):
-#     user = get_record(db, UserDB, {"numero": dados.numero}, True)
-#     if user:
-#         user_update = db.query(UserDB).filter(UserDB.id == user.id).first()
-#         if user_update:
-#             user_update.senha = get_password_hash(dados.nova_senha)
-#             db.commit()
-#             db.refresh(user)
-#     return {
-#         "message": "Pareamento senha atualizado com sucesso",
-#         "User:": user.id,
-#     }
-
-
-# @user_routers.post("/nova-senha")
-# def edit_password(dados: edit_user, db: Session = Depends(get_db)):
-#     user = get_record(db, UserDB, {"email": dados.email}, True)
-#     if user:
-#         user_update = db.query(UserDB).filter(UserDB.id == user.id).first()
-#         if user_update:
-#             user_update.senha = get_password_hash(dados.nova_senha)
-#             db.commit()
-#             db.refresh(user)
-#     return {
-#         "message": "Pareamento senha atualizado com sucesso",
-#         "User:": user.id,
-#     }
-
-
-# @user_routers.post("/novo-email")
-# def edit_email(dados: edit_user, db: Session = Depends(get_db)):
-#     user = get_record(db, UserDB, {"numero": dados.numero}, True)
-#     if user:
-#         user_update = db.query(UserDB).filter(UserDB.id == user.id).first()
-#         if user_update:
-#             user_update.email = dados.email
-#             db.commit()
-#             db.refresh(user)
-#     return {
-#         "message": "Pareamento email atualizado com sucesso",
-#         "User:": user.id,
-#     }
-
-
-# @user_routers.post("/novo-numero")
-# def edit_numero(dados: edit_user, db: Session = Depends(get_db)):
-#     user = get_record(db, UserDB, {"email": dados.email}, True)
-#     if user:
-#         user_update = db.query(UserDB).filter(UserDB.id == user.id).first()
-#         if user_update:
-#             user_update.numero = dados.numero
-#             db.commit()
-#             db.refresh(user)
-#     return {
-#         "message": "Pareamento numero atualizado com sucesso",
-#         "User:": user.id,
-#     }
-
-
-# @user_routers.post("/novo-nome")
+# @user_routers.post("/novo-nome") # modelo de edição do user -> tem q passar para pedir o token
 # def edit_nome(dados: edit_user, db: Session = Depends(get_db)):
 #     user = get_record(db, UserDB, {"email": dados.email}, True)
 #     if user:
