@@ -312,6 +312,9 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICE
 **Alomyr**  
 GitHub: [@Alomyr](https://github.com/Alomyr)
 
+**GabrielCDL**
+GitHub: [@GabrielCDL](https://github.com/GabrielCDL)
+
 ---
 
 **Última atualização:** Junho 2026  
