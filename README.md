@@ -319,6 +319,8 @@ GitHub: [@GabrielCDL](https://github.com/GabrielCDL)
 
 **Última atualização:** Junho 2026  
 **Versão:** 1.0.0
+
+```
                 │   │   │── models.py
                 │   │   │── schemas.py
                 │   │   │── service.py
@@ -340,6 +342,8 @@ GitHub: [@GabrielCDL](https://github.com/GabrielCDL)
                 │   │   │── test_admin.py
                 │── requirements.txt
                 │── README.md
+
+```
 
 ## Endpoints principais
 
