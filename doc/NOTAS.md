@@ -9,3 +9,4 @@
 - [ ] metdos de root
 
 - [ ] front-end
+- [ ] tem que colocar o consumo do front depois para guardar o sistema de token

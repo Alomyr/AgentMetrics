@@ -7,9 +7,9 @@
       "port": 5432,
       "driver": "PostgreSQL",
       "username": "postgres",
-      "name": "cachina_db",
+      "name": "AgentMetrics",
       "group": "local",
-      "database": "cachina_db"
+      "database": "AgentMetrics"
     }
   ]
 }
