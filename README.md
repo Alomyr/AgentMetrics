@@ -1,36 +1,342 @@
 # AgentMetrics
 
-API de telemetria desenvolvida para monitorar o consumo de recursos e metrificar o desempenho de agentes em tempo real.
+[![Python](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.136.1-green?logo=fastapi)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-18.3.1-blue?logo=react)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-5.3.0-purple?logo=vite)](https://vitejs.dev/)
 
-## Visão geral
+> API de telemetria e gestão de leads desenvolvida para monitorar o consumo de recursos e metrificar o desempenho de agentes em tempo real.
 
-`AgentMetrics` é uma API construída com FastAPI e SQLAlchemy para gerenciar dados de usuários, leads e métricas de desempenho de agentes. O projeto permite coletar, agregar e expor informações que ajudam a entender o comportamento e a eficiência de agentes em um sistema de atendimento.
+## 📋 Visão Geral
 
-## Funcionalidades principais
+**AgentMetrics** é uma aplicação fullstack (Python + React) que oferece um sistema centralizado para gerenciamento de usuários, leads e métricas operacionais. Construída com **FastAPI** (backend) e **React + Vite** (frontend), permite coletar, agregar e expor informações que ajudam a entender o comportamento e eficiência de agentes em um sistema de atendimento.
 
-- Cadastro e validação de usuários
-- Registro e associação de leads a usuários
-- Agregação de métricas de desempenho por usuário
-- Endpoints REST para consulta e atualização de dados
-- Banco de dados relacional suportado via SQLAlchemy
+## ✨ Funcionalidades Principais
 
-## Tecnologias
+- ✅ **Gerenciamento de Usuários** - Cadastro, validação e autenticação JWT
+- ✅ **Gestão de Leads** - Registro, associação a usuários e rastreamento
+- ✅ **Painel Administrativo** - Controle centralizado de recursos
+- ✅ **Autenticação Segura** - Tokens JWT com expiração configurável
+- ✅ **API REST Completa** - Endpoints para consulta e atualização de dados
+- ✅ **Persistência de Dados** - Banco de dados relacional via SQLAlchemy
+- ✅ **Interface Web Responsiva** - Frontend moderno com React
 
-- Python
-- FastAPI
-- SQLAlchemy
-- Uvicorn
-- Pydantic
-- PostgreSQL (`psycopg2-binary`) ou outro banco compatível com SQLAlchemy
+## 🛠️ Stack Tecnológico
 
-## Estrutura básica
+### Backend
 
-- `main.py` - inicialização da aplicação e registro de rotas
-- `routers/` - rotas da API para `leads`, `user` e administração
-- `model/` - definição do banco, modelos, esquemas, autenticação e validações
-- `config.py` - define as variaveis de ambiente para a api
-- `requirements.txt` - dependências do projeto
-- `.env` - crie ou edite o arquinvo env configurando seu ambiente de criptografia e banco de dados, para caso de edição adicione um . antes do nome do arquivo env => .env
+- **Python 3.8+** - Linguagem base
+- **FastAPI 0.136.1** - Framework web de alto desempenho
+- **SQLAlchemy** - ORM para acesso a banco de dados
+- **Pydantic** - Validação de dados
+- **PyJWT & Passlib** - Autenticação e criptografia
+- **Uvicorn** - Servidor ASGI
+- **PostgreSQL/SQLite** - Banco de dados relacional
+
+### Frontend
+
+- **React 18.3.1** - Biblioteca UI
+- **Vite 5.3.0** - Build tool e dev server
+- **Axios** - Cliente HTTP
+- **JavaScript/CSS3** - Estilos e interatividade
+
+## 📁 Estrutura do Projeto
+
+```
+AgentMetrics/
+├── backend/
+│   ├── src/
+│   │   ├── main.py                    # Inicialização da aplicação
+│   │   ├── core/                      # Núcleo global da aplicação
+│   │   │   ├── config.py              # Configurações e variáveis de ambiente
+│   │   │   ├── database.py            # Conexão e setup do banco de dados
+│   │   │   └── security.py            # Autenticação/Autorização JWT
+│   │   ├── users/                     # Módulo de Usuários
+│   │   │   ├── router.py              # Rotas de usuários
+│   │   │   ├── model.py               # Modelo ORM User
+│   │   │   └── schemas.py             # Schemas Pydantic para validação
+│   │   ├── leads/                     # Módulo de Leads
+│   │   │   ├── router.py              # Rotas de leads
+│   │   │   ├── model.py               # Modelo ORM Lead
+│   │   │   └── schemas.py             # Schemas Pydantic
+│   │   ├── admin/                     # Módulo Administrativo
+│   │   │   ├── router.py              # Rotas administrativas
+│   │   │   ├── model.py               # Modelo ORM Admin
+│   │   │   └── schemas.py             # Schemas administrativos
+│   │   └── utils/                     # Utilitários globais
+│   │       ├── enum.py                # Enumerações do projeto
+│   │       ├── models.py              # Modelos compartilhados
+│   │       ├── schemas.py             # Schemas comuns
+│   │       └── validations.py         # Validações customizadas
+│   ├── test/                          # Testes automatizados
+│   │   ├── test_auth_flow.py          # Testes de autenticação
+│   │   └── test.py                    # Testes gerais
+│   ├── requirements.txt               # Dependências Python
+│   ├── delet_test_sql.sql             # Script SQL para limpeza de testes
+│   └── README.md                      # Documentação do backend
+│
+├── frontend/
+│   ├── src/
+│   │   ├── main.jsx                   # Ponto de entrada React
+│   │   ├── App.jsx                    # Componente raiz
+│   │   ├── api.js                     # Cliente HTTP (Axios)
+│   │   └── index.css                  # Estilos globais
+│   ├── index.html                     # Template HTML
+│   ├── package.json                   # Dependências Node.js
+│   ├── vite.config.js                 # Configuração Vite
+│   └── README.md                      # Documentação do frontend
+│
+├── doc/
+│   ├── diagrama.drawio                # Diagramas da arquitetura
+│   ├── env.txt                        # Template de variáveis de ambiente
+│   └── NOTAS.md                       # Anotações e referências
+│
+├── LICENSE                            # Licença do projeto
+└── README.md                          # Este arquivo
+```
+
+## 🚀 Quick Start
+
+### Pré-requisitos
+
+- Python 3.8 ou superior
+- Node.js 16+ e npm/yarn
+- PostgreSQL 12+ (ou SQLite para desenvolvimento)
+- Git
+
+### Instalação do Backend
+
+```bash
+# Clonar repositório
+git clone https://github.com/Alomyr/AgentMetrics.git
+cd AgentMetrics/backend
+
+# Criar ambiente virtual
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# ou
+venv\Scripts\activate  # Windows
+
+# Instalar dependências
+pip install -r requirements.txt
+
+# Configurar variáveis de ambiente
+cp ../doc/env.txt .env
+# Editar .env com suas configurações
+```
+
+### Instalação do Frontend
+
+```bash
+cd ../frontend
+
+# Instalar dependências
+npm install
+# ou
+yarn install
+```
+
+### Rodar Aplicação Localmente
+
+**Backend (Terminal 1):**
+
+```bash
+cd backend
+source venv/bin/activate
+python -m uvicorn src.main:app --reload --port 8000
+```
+
+A API estará disponível em: `http://localhost:8000`
+Documentação interativa: `http://localhost:8000/docs`
+
+**Frontend (Terminal 2):**
+
+```bash
+cd frontend
+npm run dev
+# ou
+yarn dev
+```
+
+O frontend estará disponível em: `http://localhost:5173` (padrão Vite)
+
+## 🔧 Configuração de Ambiente
+
+Crie um arquivo `.env` na raiz do diretório `backend/` com as seguintes variáveis:
+
+```env
+# Segurança JWT
+SECRET_KEY=sua_chave_secreta_muito_longa_aqui
+SECURITY_KEY=sua_chave_de_seguranca
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+# Banco de Dados
+SQLALCHEMY_DATABASE_URL=postgresql://usuario:senha@localhost:5432/agentmetrics
+# Ou para SQLite (desenvolvimento):
+# SQLALCHEMY_DATABASE_URL=sqlite:///./agentmetrics.db
+
+# Aplicação
+DEBUG=True
+```
+
+## 📚 Documentação da API
+
+Uma vez que o backend está rodando, acesse:
+
+- **Swagger UI**: <http://localhost:8000/docs>
+- **ReDoc**: <http://localhost:8000/redoc>
+
+A documentação interativa gerada automaticamente pelo FastAPI permite testar todos os endpoints.
+
+## 🧪 Testes
+
+Executar testes automatizados:
+
+```bash
+cd backend
+
+# Rodar todos os testes
+pytest
+
+# Rodar testes com cobertura
+pytest --cov=src
+
+# Rodar testes de fluxo de autenticação
+pytest test/test_auth_flow.py -v
+```
+
+## 📦 Build para Produção
+
+### Backend
+
+```bash
+cd backend
+pip install gunicorn
+gunicorn -w 4 -b 0.0.0.0:8000 src.main:app
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm run build
+# Distribuir conteúdo de ./dist
+```
+
+## 🏗️ Arquitetura e Componentes
+
+### Core Module (`src/core/`)
+
+- **config.py** - Gerenciamento centralizado de configurações e variáveis de ambiente
+- **database.py** - Inicialização do SQLAlchemy, session factory e declarative base
+- **security.py** - Funções de hash de senha, validação e geração de tokens JWT
+
+### Domain Modules (`src/users/`, `src/leads/`, `src/admin/`)
+
+Cada módulo segue o padrão **MVC** com:
+
+- **model.py** - Definição dos modelos SQLAlchemy (ORM)
+- **schemas.py** - Schemas Pydantic para validação de entrada/saída
+- **router.py** - Definição dos endpoints REST
+- **service.py** (planejado) - Lógica de negócio isolada
+- **dependencies.py** (planejado) - Injeção de dependências FastAPI
+
+## 🔐 Autenticação e Autorização
+
+O sistema utiliza **JWT (JSON Web Tokens)** para autenticação:
+
+1. Usuário faz login e recebe um token
+2. Token é enviado no header `Authorization: Bearer <token>` em requisições subsequentes
+3. Backend valida o token e autoriza a requisição
+4. Implementação em `src/core/security.py`
+
+## 📊 Modelo de Dados
+
+### User
+
+```
+- id: UUID (Primary Key)
+- email: String (Unique)
+- username: String (Unique)
+- password_hash: String
+- is_active: Boolean
+- created_at: DateTime
+```
+
+### Lead
+
+```
+- id: UUID (Primary Key)
+- user_id: UUID (Foreign Key)
+- name: String
+- email: String
+- status: String (enum)
+- created_at: DateTime
+- updated_at: DateTime
+```
+
+### Admin
+
+```
+- id: UUID (Primary Key)
+- user_id: UUID (Foreign Key)
+- permissions: Array
+- created_at: DateTime
+```
+
+## 🤝 Contribuindo
+
+1. Crie uma branch para sua feature: `git checkout -b feature/minha-feature`
+2. Commit suas mudanças: `git commit -am 'Adiciona nova feature'`
+3. Push para a branch: `git push origin feature/minha-feature`
+4. Abra um Pull Request
+
+## 📝 Próximas Melhorias
+
+- [ ] Adicionar módulo `service.py` para cada domínio
+- [ ] Implementar `dependencies.py` para injeção de dependências
+- [ ] Adicionar logging global em `src/core/logging.py`
+- [ ] Ampliar cobertura de testes
+- [ ] Documentar fluxos de negócio no diagrama
+- [ ] Implementar rate limiting
+- [ ] Adicionar CI/CD com GitHub Actions
+- [ ] Containerizar com Docker
+
+## 📄 Licença
+
+Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
+
+## 👤 Autor
+
+**Alomyr**  
+GitHub: [@Alomyr](https://github.com/Alomyr)
+
+---
+
+**Última atualização:** Junho 2026  
+**Versão:** 1.0.0
+                │   │   │── models.py
+                │   │   │── schemas.py
+                │   │   │── service.py
+                │   │   │── dependencies.py
+                │   │── admin/
+                │   │   │── router.py
+                │   │   │── models.py
+                │   │   │── schemas.py
+                │   │   │── service.py
+                │   │── utils/
+                │   │   │── enums.py
+                │   │   │── helpers.py
+                │── tests/
+                │   │── users/
+                │   │   │── test_users.py
+                │   │── leads/
+                │   │   │── test_leads.py
+                │   │── admin/
+                │   │   │── test_admin.py
+                │── requirements.txt
+                │── README.md
 
 ## Endpoints principais
 
@@ -124,43 +430,3 @@ Contribuições são bem-vindas. Abra issues ou pull requests para propor melhor
 ## Licença
 
 Este projeto pode ser distribuído conforme a licença escolhida pelo mantenedor.
-
-
-
-backend/
-│── src/
-│   │── main.py              # inicialização da aplicação
-│   │── core/                # núcleo global
-│   │   │── config.py        # configs globais
-│   │   │── database.py      # conexão DB
-│   │   │── security.py      # autenticação/autorização
-│   │   │── logging.py       # logs globais
-│   │── users/
-│   │   │── router.py        # rotas de usuários
-│   │   │── models.py        # modelo User
-│   │   │── schemas.py       # schema User
-│   │   │── service.py       # lógica de negócio
-│   │   │── dependencies.py  # dependências específicas
-│   │── leads/
-│   │   │── router.py
-│   │   │── models.py
-│   │   │── schemas.py
-│   │   │── service.py
-│   │   │── dependencies.py
-│   │── admin/
-│   │   │── router.py
-│   │   │── models.py
-│   │   │── schemas.py
-│   │   │── service.py
-│   │── utils/
-│   │   │── enums.py
-│   │   │── helpers.py
-│── tests/
-│   │── users/
-│   │   │── test_users.py
-│   │── leads/
-│   │   │── test_leads.py
-│   │── admin/
-│   │   │── test_admin.py
-│── requirements.txt
-│── README.md
