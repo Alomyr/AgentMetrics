@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 from backend.src.leads.schemas import LeadValidation
 from backend.src.leads.model import LeadDB
 from backend.src.users.model import UserDB
-from backend.src.utils.models import IdentityDB
 from backend.src.leads.model import UserLeadAssociation
 from backend.src.users.model import MetricasLeadInUser
 from datetime import datetime
@@ -14,22 +13,32 @@ import backend.src.utils.validations
 Cliente_routers = APIRouter(prefix="/leads", tags=["Leads"])
 dependencies = backend.src.utils.validations
 
-
 def split_intencao(value):
+    """
+    Normaliza e limpa o valor da intenção, convertendo strings ou listas em um array limpo.
+
+    Args:
+        value (str | list | None): Valor bruto contendo as intenções.
+
+    Returns:
+        list[str]: Lista contendo strings limpas de espaços em branco.
+    """
     if value is None:
         return []
     if isinstance(value, list):
-        return [
-            str(item).strip()
-            for item in value
-            if item is not None and str(item).strip()
-        ]
+        return [str(item).strip() for item in value if item is not None and str(item).strip()]
     if isinstance(value, str):
         return [item.strip() for item in value.split(",") if item.strip()]
     raise ValueError("intencao deve ser uma string ou lista de strings")
 
 
 def validate_lead_intencao(existing_user, data_lead):
+    """
+    Valida se as intenções solicitadas pelo lead são permitidas para o usuário atribuído.
+
+    Raises:
+        HTTPException: Erro 400 se houver intenções inválidas em relação às permitidas no perfil.
+    """
     if existing_user.intencao is None or data_lead.intencao is None:
         return
 
@@ -39,17 +48,18 @@ def validate_lead_intencao(existing_user, data_lead):
     if invalid:
         raise HTTPException(
             status_code=400,
-            detail=(
-                f"Intenção inválida para este usuário: {invalid}. "
-                f"Somente as intenções permitidas pelo usuário são: {allowed}."
-            ),
+            detail=f"Intenção inválida para este usuário: {invalid}. Permitidas: {allowed}.",
         )
 
 
 def modulo_lead(existing_user, existing_lead, data_lead):
+    """
+    Instancia e preenche o modelo de associação contendo os metadados do atendimento do lead.
+    """
     validate_lead_intencao(existing_user, data_lead)
     intent_value = data_lead.intencao or existing_user.intencao
-    association = UserLeadAssociation(
+    
+    return UserLeadAssociation(
         conversa_id=data_lead.conversa_id,
         user_id=existing_user.id,
         lead_id=existing_lead.id,
@@ -62,46 +72,46 @@ def modulo_lead(existing_user, existing_lead, data_lead):
         data_hora_servico=data_lead.data_hora_servico,
         satisfacao=data_lead.satisfacao,
     )
-    return association
 
 
 def new_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
-
+    """
+    Cria um registro inédito de Lead e inicia sua primeira associação de conversa.
+    """
     existing_user = get_record(db, UserDB, {"numero": data_lead.numero_user}, True)
     result_check(existing_user, "User não encontrado.", 404, False)
 
-    new_lead = LeadDB(
+    new_lead_obj = LeadDB(
         name=data_lead.name,
         numero=data_lead.numero_lead,
         type="lead",
     )
-    association = modulo_lead(existing_user, new_lead, data_lead)
-    new_lead.associations.append(association)
+    association = modulo_lead(existing_user, new_lead_obj, data_lead)
+    new_lead_obj.associations.append(association)
 
-    insert_db(db, new_lead, True)
+    insert_db(db, new_lead_obj, True)
     return {
         "message": "Novo Cliente criado com sucesso",
-        "cliente_id": new_lead.id,
+        "cliente_id": new_lead_obj.id,
         "Status": association.status,
-    }, aggregate_metricas(
-        db,
-    )
+    }, aggregate_metricas(db)
 
 
 def validation_lead_user(user, lead, db: Session, data_lead):
-    association = (
-        db.query(UserLeadAssociation)
-        .filter(
-            UserLeadAssociation.lead_id == lead.id,
-            UserLeadAssociation.user_id == user.id,
-            UserLeadAssociation.conversa_id == data_lead.conversa_id,
-        )
-        .first()
-    )
-    return association
+    """
+    Busca se já existe um pareamento ativo de conversa para o trio específico (User, Lead, Conversa).
+    """
+    return db.query(UserLeadAssociation).filter(
+        UserLeadAssociation.lead_id == lead.id,
+        UserLeadAssociation.user_id == user.id,
+        UserLeadAssociation.conversa_id == data_lead.conversa_id,
+    ).first()
 
 
 def lead_update(data_lead, db: Session, user, lead):
+    """
+    Modifica os metadados de uma interação pré-existente e atualiza os contadores operacionais.
+    """
     try:
         association = validation_lead_user(user, lead, db, data_lead)
 
@@ -113,7 +123,6 @@ def lead_update(data_lead, db: Session, user, lead):
             if data_lead.intencao is not None:
                 association.intencao = data_lead.intencao
             association.satisfacao = data_lead.satisfacao
-            # association.data_hora_servico = data_lead.data_hora_servico
 
             db.commit()
             db.refresh(association)
@@ -123,22 +132,18 @@ def lead_update(data_lead, db: Session, user, lead):
                 "lead_id": lead.id,
                 "usuario_vinculado": user.id,
                 "Status": association.status,
-            }, aggregate_metricas(
-                db,
-            )
+            }, aggregate_metricas(db)
 
     except Exception as e:
         db.rollback()
-        print(f"ERRO DO SQLALCHEMY: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 def aggregate_metrics_for_user(user: UserDB, db: Session):
-    associations = (
-        db.query(UserLeadAssociation)
-        .filter(UserLeadAssociation.user_id == user.id)
-        .all()
-    )
+    """
+    Calcula, consolida e persiste as métricas de performance de atendimento de um usuário único.
+    """
+    associations = db.query(UserLeadAssociation).filter(UserLeadAssociation.user_id == user.id).all()
 
     total_leads = len(associations)
     pendentes = sum(1 for a in associations if a.status == "PENDENTE")
@@ -147,15 +152,9 @@ def aggregate_metrics_for_user(user: UserDB, db: Session):
 
     satisfacoes = [a.satisfacao for a in associations if a.satisfacao is not None]
     avg_satisfacao = float(sum(satisfacoes) / len(satisfacoes)) if satisfacoes else None
-
-    # avg_response_time não está disponível nos dados atuais; guardar como None
     avg_response_time = None
 
-    metric = (
-        db.query(MetricasLeadInUser)
-        .filter(MetricasLeadInUser.user_id == user.id)
-        .first()
-    )
+    metric = db.query(MetricasLeadInUser).filter(MetricasLeadInUser.user_id == user.id).first()
 
     if metric:
         metric.total_leads = total_leads
@@ -182,77 +181,76 @@ def aggregate_metrics_for_user(user: UserDB, db: Session):
     return metric
 
 
-# @Cliente_routers.post("/aggregate-metricas")
 def aggregate_metricas(db: Session = Depends(get_db)):
+    """
+    Gera o relatório agregador macro de produtividade recalculando métricas para toda a base de usuários.
+    """
     try:
         users = db.query(UserDB).all()
         results = []
         for u in users:
             m = aggregate_metrics_for_user(u, db)
-            results.append(
-                {
-                    "user_id": u.id,
-                    "total_leads": m.total_leads,
-                    "leads_abertos": m.leads_abertos,
-                    "leads_fechados": m.leads_fechados,
-                    "avg_satisfacao": m.avg_satisfacao,
-                    "last_aggregated": m.last_aggregated,
-                }
-            )
-
+            results.append({
+                "user_id": u.id,
+                "total_leads": m.total_leads,
+                "leads_abertos": m.leads_abertos,
+                "leads_fechados": m.leads_fechados,
+                "avg_satisfacao": m.avg_satisfacao,
+                "last_aggregated": m.last_aggregated,
+            })
         return {"message": "Métricas agregadas com sucesso", "summary": results}
     except Exception as e:
         db.rollback()
-        print(f"ERRO AO AGREGAR METRICAS: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 def edit_nome(data_lead, db: Session = Depends(get_db)):
+    """
+    Sincroniza e altera o nome cadastrado do lead caso haja divergências com os dados recebidos.
+    """
     lead = get_record(db, LeadDB, {"numero": data_lead.numero_lead}, True)
     lead.name = data_lead.name
     db.commit()
     db.refresh(lead)
-    return {
-        "message": "Pareamento nome atualizado com sucesso",
-        "User:": lead.id,
-    }
+    return {"message": "Pareamento nome atualizado com sucesso", "User:": lead.id}
 
 
 @Cliente_routers.post("/chat-lead")
 def chat_lead(data_lead: LeadValidation, db: Session = Depends(get_db)):
+    """
+    Recebe os pacotes de conversão/interação vindos do webhook de chat.
+    Decide se criará um novo lead, um novo pareamento ou se executará um update no histórico existente.
+    """
     existing_lead = get_record(db, LeadDB, {"numero": data_lead.numero_lead}, True)
 
     if not existing_lead:
-        return f"Lead não encontrado, adicionando o sistema: ", new_lead(data_lead, db)
-    else:
-        existing_user = get_record(db, UserDB, {"numero": data_lead.numero_user}, True)
-        result_check(existing_user, "User não encontrado.", 404, False)
-        if existing_lead.name != data_lead.name:
-            edit_nome(data_lead, db)
+        return "Lead não encontrado, adicionando ao sistema: ", new_lead(data_lead, db)
+    
+    existing_user = get_record(db, UserDB, {"numero": data_lead.numero_user}, True)
+    result_check(existing_user, "User não encontrado.", 404, False)
+    
+    if existing_lead.name != data_lead.name:
+        edit_nome(data_lead, db)
 
-        association = validation_lead_user(existing_user, existing_lead, db, data_lead)
+    association = validation_lead_user(existing_user, existing_lead, db, data_lead)
 
-        if association:
-            return (lead_update(data_lead, db, existing_user, existing_lead),)
+    if association:
+        return (lead_update(data_lead, db, existing_user, existing_lead),)
 
-        try:
-            association = modulo_lead(existing_user, existing_lead, data_lead)
-            # anexar também à lista de associações do lead (mantém o estado ORM consistente)
-            existing_lead.associations.append(association)
-            db.add(association)
-            db.commit()
-            db.refresh(association)
+    try:
+        association_obj = modulo_lead(existing_user, existing_lead, data_lead)
+        existing_lead.associations.append(association_obj)
+        db.add(association_obj)
+        db.commit()
+        db.refresh(association_obj)
 
-            return {
-                "message": "Novo pareamento(s) criado(s) com sucesso",
-                "lead_id": existing_lead.id,
-                "usuarios_vinculados": existing_user.id,
-                "Status": association.status,
-            }, aggregate_metricas(
-                db,
-            )
+        return {
+            "message": "Novo pareamento(s) criado(s) com sucesso",
+            "lead_id": existing_lead.id,
+            "usuarios_vinculados": existing_user.id,
+            "Status": association_obj.status,
+        }, aggregate_metricas(db)
 
-        except Exception as e:
-            db.rollback()
-            print(f"ERRO DO SQLALCHEMY: {e}")
-            raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))

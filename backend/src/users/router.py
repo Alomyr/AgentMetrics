@@ -22,130 +22,31 @@ from backend.src.leads.model import UserLeadAssociation
 user_routers = APIRouter(prefix="/user", tags=["User"])
 
 
-# tem q permitir a promoção de lead para user avaliar
+def token(
+    user_id: int, duracao: timedelta = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+) -> str:
+    """
+    Gera um token criptográfico JWT assinado para o usuário.
 
+    Args:
+        user_id (int): Identificador único do usuário que será inserido no claim 'sub'.
+        duracao (timedelta): Tempo de validade do token. Padrão: ACCESS_TOKEN_EXPIRE_MINUTES.
 
-# @user_routers.get("/list-user")
-# def listar_user(db: Session = Depends(get_db)):
-#     users = db.query(UserDB).all()
-#     return [
-#         {
-#             "id": user.id,
-#             "name": getattr(user, "name", None) or getattr(user, "nome", None),
-#             "numero": getattr(user, "numero", None),
-#             "email": user.email,
-#             "intencao": user.intencao,
-#         }
-#         for user in users
-#     ]
-
-
-@user_routers.post("/cadastro")
-def add_new_user(user_data: Creat_new_user, db: Session = Depends(get_db)):
-    existing_user = get_record(db, UserDB, {"email": user_data.email}, True)
-    result_check(existing_user, "O email já está cadastrado.", 404)
-
-    existing_user_numero = get_record(db, UserDB, {"numero": user_data.numero}, True)
-    result_check(existing_user_numero, "O Numero já está cadastrado.", 404)
-
-    novo_user = UserDB(
-        name=user_data.name,
-        numero=user_data.numero,
-        email=user_data.email,
-        senha=get_password_hash(user_data.senha),
-    )
-    insert_db(db, novo_user, True)
-    return {"message": "Sucesso", "user_id": novo_user.id}
-
-
-def token(user_id, duracao=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)):
+    Returns:
+        str: String codificada do token JWT.
+    """
     data_expiracao = datetime.now(timezone.utc) + duracao
     dic_info = {"sub": str(user_id), "exp": data_expiracao}
-    token = jwt.encode(dic_info, SECRET_KEY, ALGORITHM)
-    return token
+    return jwt.encode(dic_info, SECRET_KEY, algorithm=ALGORITHM)
 
 
-@user_routers.post("/login")
-async def login(login: login_user, db: Session = Depends(get_db)):
+def serialize_intencao(value) -> str | None:
+    """
+    Sanitiza e normaliza o campo intenção para gravação consistente no banco de dados.
 
-    user = get_record(db, UserDB, {"email": login.email}, True)
-
-    result_check(user, "Senha ou Login errados", 400, False)
-
-    if not verify_password(login.senha, user.senha):
-        raise HTTPException(status_code=400, detail="Senha ou Login errados")
-    else:
-        access_token = token(user.id)
-        refresh_token = token(user.id, timedelta(days=1))
-
-        return {
-            "access_token": access_token,
-            "refresh_token": refresh_token,
-            "token_type": "Bearer",
-            "message": "Autenticação bem-sucedida",
-        }
-
-
-@user_routers.post("/login-forms")
-async def login_forms(
-    login: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
-):
-
-    user = get_record(db, UserDB, {"email": login.username}, True)
-
-    result_check(user, "Senha ou Login errados", 400, False)
-
-    if not verify_password(login.password, user.senha):
-        raise HTTPException(status_code=400, detail="Senha ou Login errados")
-    else:
-        access_token = token(user.id)
-
-        return {
-            "access_token": access_token,
-            "token_type": "Bearer",
-            "message": "Autenticação bem-sucedida",
-        }
-
-
-@user_routers.get("/refresh")
-async def use_refresh_token(user: UserDB = Depends(verificar_token)):
-    acces_token = token(user.id)
-    return {
-        "access_token": acces_token,
-        "token_type": "Bearer",
-        "message": "Autenticação bem-sucedida",
-    }
-
-
-@user_routers.get("/list-leads")
-async def list_leads(
-    user: UserDB = Depends(verificar_token),
-    db: Session = Depends(get_db),
-):
-    user_login = (
-        db.query(UserLeadAssociation)
-        .filter(UserLeadAssociation.user_id == user.id)
-        .all()
-    )
-    return [
-        {
-            "id": user.lead_id,
-            "nome": user.lead_name,
-            "numero": user.lead_number,
-            "Status": user.status,
-            "intencao": user.intencao,
-            "satisfação": user.satisfacao,
-            "resumo": user.resumo_conversa,
-            "data": user.data_hora_servico,
-        }
-        for user in user_login
-    ]
-
-
-# tabela de metricas segue a mesma logica aqui
-
-
-def serialize_intencao(value):
+    Converte formatos mistos (listas ou strings isoladas) em uma única string
+    separada por vírgulas e sem espaços residuais.
+    """
     if value is None:
         return None
     if isinstance(value, str):
@@ -163,15 +64,120 @@ def serialize_intencao(value):
     )
 
 
+@user_routers.post("/cadastro")
+def add_new_user(user_data: Creat_new_user, db: Session = Depends(get_db)):
+    """
+    Cadastra um novo usuário atendente no sistema após validação de dados únicos.
+    """
+    existing_user = get_record(db, UserDB, {"email": user_data.email}, True)
+    result_check(existing_user, "O email já está cadastrado.", 404)
+
+    existing_user_numero = get_record(db, UserDB, {"numero": user_data.numero}, True)
+    result_check(existing_user_numero, "O Número já está cadastrado.", 404)
+
+    novo_user = UserDB(
+        name=user_data.name,
+        numero=user_data.numero,
+        email=user_data.email,
+        senha=get_password_hash(user_data.senha),
+    )
+    insert_db(db, novo_user, True)
+    return {"message": "Sucesso", "user_id": novo_user.id}
+
+
+@user_routers.post("/login")
+async def login(login: login_user, db: Session = Depends(get_db)):
+    """
+    Autentica um usuário via payload JSON padrão e emite tokens de acesso e renovação.
+    """
+    user = get_record(db, UserDB, {"email": login.email}, True)
+    result_check(user, "Senha ou Login errados", 400, False)
+
+    if not verify_password(login.senha, user.senha):
+        raise HTTPException(status_code=400, detail="Senha ou Login errados")
+
+    access_token = token(user.id)
+    refresh_token = token(user.id, timedelta(days=1))
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "Bearer",
+        "message": "Autenticação bem-sucedida",
+    }
+
+
+@user_routers.post("/login-forms")
+async def login_forms(
+    login: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
+):
+    """
+    Autentica um usuário usando o formato de formulário padrão OAuth2 (utilizado pelo Swagger).
+    """
+    user = get_record(db, UserDB, {"email": login.username}, True)
+    result_check(user, "Senha ou Login errados", 400, False)
+
+    if not verify_password(login.password, user.senha):
+        raise HTTPException(status_code=400, detail="Senha ou Login errados")
+
+    access_token = token(user.id)
+    return {
+        "access_token": access_token,
+        "token_type": "Bearer",
+        "message": "Autenticação bem-sucedida",
+    }
+
+
+@user_routers.get("/refresh")
+async def use_refresh_token(user: UserDB = Depends(verificar_token)):
+    """
+    Gera e retorna um novo token de acesso válido a partir de uma sessão de usuário ativa.
+    """
+    acces_token = token(user.id)
+    return {
+        "access_token": acces_token,
+        "token_type": "Bearer",
+        "message": "Autenticação bem-sucedida",
+    }
+
+
+@user_routers.get("/list-leads")
+async def list_leads(
+    user: UserDB = Depends(verificar_token),
+    db: Session = Depends(get_db),
+):
+    """
+    Recupera e lista de forma serializada todas as interações e leads vinculados ao usuário autenticado.
+    """
+    user_login = (
+        db.query(UserLeadAssociation)
+        .filter(UserLeadAssociation.user_id == user.id)
+        .all()
+    )
+    return [
+        {
+            "id": item.lead_id,
+            "nome": item.lead_name,
+            "numero": item.lead_number,
+            "Status": item.status,
+            "intencao": item.intencao,
+            "satisfação": item.satisfacao,
+            "resumo": item.resumo_conversa,
+            "data": item.data_hora_servico,
+        }
+        for item in user_login
+    ]
+
+
 @user_routers.post("/intesao")
 async def def_intesao(
     data_user: intenso,
     db: Session = Depends(get_db),
     user: UserDB = Depends(verificar_token),
 ):
-
-    acces_token = token(user.id)
-
+    """
+    Atualiza as intenções de segmentação de leads associadas ao perfil operacional do atendente.
+    """
     user_intesao = get_record(db, UserDB, {"id": user.id}, True)
 
     if user_intesao:
@@ -180,6 +186,7 @@ async def def_intesao(
             user_update.intencao = serialize_intencao(data_user.intencao)
             db.commit()
             db.refresh(user_intesao)
+
     return {
         "message": "Pareamento intensao atualizado com sucesso",
         "User:": user_intesao.id,
